@@ -1,0 +1,60 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout}">
+<head>
+	<title>Lokasi</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+
+<p align="right">
+	<button onclick="addform()" class="btn btn-outline-primary">Tambah</button>
+</p>
+<!--p align="left">
+	<input type="text" >
+</p-->
+<table class="table" id="mytable">
+<thead>
+<tr align="middle">
+	<th>Nama</th>
+	<th>Level Lokasi</th>
+	<th>Wilayah</th>
+	<th>#</th>
+</tr>
+</thead>
+<tbody>
+		<tr th:each = "item, iter : ${listlok}" align="middle">
+		<td th:text="${iter.name}"></td>
+		<td th:text="${item.m_location_level.name }"></td>	
+		<td th:text="${item.m_location_level.abbreviation}"></td>
+		<button th:value="${item.Id}" onclick="editform(this.value)" class="btn btn-labeled btn-outline-primary">
+		<span class="btn-label">
+		<i class="fa fa-pencil">
+		</i></span> Edit</button>
+		
+		<button th:value="${item.Id}" onclick="del(this.value)" class="btn btn-labeled btn-outline-danger">
+		<span class="btn-label">
+		<i class="fa fa-trash">
+		</i></span> Delete</button>	
+		</td>
+	</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>
+<script>
+function addform(id){
+	$.ajax({
+	url:'/lokasi/form',
+	type:'get',
+	contentType:'html',
+	success:function(result){
+		$("#mymodal").modal('show')
+		$(".modal-title").html('Form Lokasi')
+		$(".modal-body").html(result)
+	}
+})
+}
+</script>

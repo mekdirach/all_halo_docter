@@ -1,0 +1,125 @@
+<!Doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thyemeleaf/layout">
+<head>
+	<title> dokterhalo::289 </title>	
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+	<style>
+		*
+		{
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+</head>
+	<body>
+		<div class="modal fade" id="mymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content" >
+				<div class="modal-header" style="background-color: #bde0fe;">
+				  <h5 class="modal-title" id="exampleModalLabel" >Modal title</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modal"></button>
+				</div>
+				<div class="modal-body">
+				  ...
+				</div>
+			   
+			  </div>
+			</div>
+		  </div>
+
+		  <div class="modal fade" id="mymodal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content" >
+				<div class="modal-header" style="background-color: #bde0fe;">
+				  <h5 class="modal-title2" id="exampleModalLabel" >Modal title</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modal"></button>
+				</div>
+				<div class="modal-body2">
+				  ...
+				</div>
+			   
+			  </div>
+			</div>
+		  </div>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: lightblue; padding: 10px; padding-left: 20px;">
+			  <li class="breadcrumb-item">Home</li>
+			  <li class="breadcrumb-item active" aria-current="page" id="next">Library</li>
+			</ol>
+		 
+		<div class="d-flex vh-100 justify-content-between" style="padding: 10px;">
+			
+			<div class="d-flex flex-column col-4"> 
+				
+				<div class="card h-100" style="padding: 20px;"> 
+					
+					<div class="d-flex justify-content-end" style="padding-right: 150px;">
+						<button class="btn" style="border: none; cursor:pointer;"><i class="fa fa-pencil"></i></button>
+					</div>
+					<img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" class="img-fluid rounded mx-auto d-block rounded-circle" alt="Responsive image" width="200px" >
+
+                    
+						<p class="text-center"><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i><br> Bronze Member <br>
+						since 2020 <br>
+						</p>
+						<table border="0" class="table">
+							<tr>
+								<td>
+									<strong><a href="">Pasien</a></strong>
+								</td>
+								
+							</tr>
+							<tr>
+								<td>
+									<strong><a href="">Pembelian Obat</a></strong>
+								</td>
+							</tr>
+                            <tr>
+								<td>
+									<strong><a href="">Rencana Kedatangan</a></strong>
+								</td>
+							</tr>
+                            <tr>
+								<td>
+									<strong><a href="">Riwayat Chat Dokter</a></strong>
+								</td>
+							</tr>
+						</table>
+					
+				</div>
+				<div>
+					
+				  </div>
+			</div>
+			<div id="content" class="card col-8" >
+				<div>
+					<div class="card-header">
+					  <ul class="nav nav-tabs card-header-tabs">
+						<li class="nav-item">
+						  <a class="nav-link" aria-current="true" href="#">Tindakan</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="#">Aktivitas</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="#">Konsultasi</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Pengaturan</a>
+						</li>
+					  </ul>
+					</div>
+					<div class="card-body">
+                        <section layout:fragment="content"></section>
+					</div>
+			</div>
+		</div>
+	</nav>
+	</body>
+</html>

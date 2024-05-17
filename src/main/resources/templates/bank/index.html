@@ -1,0 +1,336 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout}">
+<head>
+	<title>Bank</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+<h1>Bank</h1>
+
+<p align="right">
+	<input id="searchdata" onchange="search()" type="text"></input>
+	<button onclick="addform()" class="btn btn-outline-primary">Tambah</button>
+</p>
+
+<table class="table" id="mytable">
+<thead>
+<tr align="middle">
+	<th>Nama</th>
+	<th>Kode VA</th>
+	<th>#</th>
+</tr>
+</thead>
+<tbody id="dataproduct"></tbody>
+</table> 
+<script>
+reloaddata();
+function reloaddata(){
+	$.ajax({
+		url: '/api/bank',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+			console.log(result.length)
+			var data = '';
+			for(i=0; i<result.length;i++){
+				data += '<tr>'
+				data += '<td>'+result[i].name+'<br>'+'</td>'
+				data += '<td>'+result[i].va_code+'<br>'+'</td>'
+				data +='<td>'
+				data +='<button class ="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)" style"margin-right:2px;">Edit</button>'
+				data +='<button class ="btn btn-outline-danger" value="'+result[i].id+'" onclick="Deleteform(this.value)">Del</button>'
+				data += '</td>'
+				data +='</tr>'
+			}
+			$('#dataproduct').html(data)
+		}
+	})
+$(document).ready( function () {$('#mytable').DataTable({"bLengthChange": false,"bFilter": true, "bInfo":false});});
+}
+
+function search(){
+	var cari = $('#searchdata').val()
+	$.ajax({
+		url:'/api/bank/search/'+ cari.toLowerCase(),
+		type : 'get',
+		contentType:'application/json',
+		success:function(result){
+			console.log(result)
+			var data=" ";
+			for(i=0; i<result.length;i++){
+				data += '<tr>'
+				data += '<td>'+result[i].name+'<br>'+'</td>'
+				data += '<td>'+result[i].va_code+'<br>'+'</td>'
+				data +='<td>'
+				data +='<button class ="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)" style"margin-right:2px;">Edit</button>'
+				data +='<button class ="btn btn-outline-danger" value="'+result[i].id+'" onclick="Deleteform(this.value)">Del</button>'
+				data += '</td>'
+				data +='</tr>'
+			}
+			$('#dataproduct').html(data)
+			
+			}
+			})
+	}
+function addform(){
+	var form='<table class="table table-borderless">'
+	form += '<tr>'
+	form += '<td>Nama*</td>'
+	form += '</tr>'
+	form += '<td><input type="text" class="form-control" id="name" required placeholder="Masukan Nama Bank"><p id="val" style="color:red;"></p></td>'
+	form += '</tr>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Kode VA*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input type="text" class="form-control" id="kodeva" required placeholder="Masukan Kode VA	"><p id="val1" style="color:red;"></p></td>'
+	form +='</tr>'
+	form += '<td align="middle">'
+    form += '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style"margin-right:10px;">Close</button>'
+    form += '<button type="button" class="btn btn-outline-primary"  onclick="check()" >Save changes</button>'
+    //form += '<button type="button" class="btn btn-outline-danger"  onclick="addform()" >?</button>'
+	form +='</td>'
+	form +='</table>'
+			$("#mymodal").modal('show')
+			$(".modal-title").html('Tambah Kode Bank')
+			$(".modal-body").html(form)
+			
+}
+function check(){
+	var nam =$('#name').val().trim().toLowerCase()
+	var va_code=$('#kodeva').val()
+	if(nam=="" && va_code==""){
+		document.getElementById("val").innerHTML="Harap Di isi Nama Bank" 
+		document.getElementById("val1").innerHTML="Harap Di isi Kode VA"
+	}
+	else if (nam ==""){
+		document.getElementById("val").innerHTML="Harap Di isi Nama Bank"
+	}
+	else if(va_code == ""){		
+		document.getElementById("val1").innerHTML="Harap Di isi Kode VA"
+	}else{
+		$.ajax({
+			url:'/api/bankcheck/'+nam,
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+					document.getElementById("val").innerHTML="Nama Bank Sudah Ada"
+					//document.getElementById("val1").innerHTML="Kode VA Sudah Ada"
+				}
+				else if(result.length == 0){
+					$.ajax({
+						url:'/api/bankcheckva/'+va_code,
+						type:'get',
+						contentType:'application/json',
+						success:function(resultva){
+							if(resultva.length!=0){
+								//document.getElementById("val").innerHTML="Nama Bank Sudah Ada"
+								document.getElementById("val1").innerHTML="Kode VA Sudah Ada"
+							}
+							else{
+								save();
+							}
+						}
+					})
+				}
+			}
+		})
+			
+	}
+	
+}
+function save(){
+var sav = '{'
+sav += '"name":"'+$('#name').val()+'",'
+sav += '"va_code":"'+$('#kodeva').val()+'"'
+sav += '}'
+console.log(sav);
+$.ajax({
+	url: '/api/insertbank',
+	type: 'post',
+	data: sav,
+	contentType: 'application/json',
+	success:function(result){
+	console.log(result)
+	$('#mymodal').modal('hide')
+	reloaddata();
+	}
+})
+}
+function editform(id){
+	$.ajax({
+		url: '/api/bank/'+id,
+		type: 'get',
+		contentType: 'application/json',
+		success: function(result){
+			console.log(result)
+		var edit = '<table class="table table-borderless">'
+		edit += '<tr>'
+		edit += '<td>Nama*</td>'
+		edit += '</tr>'
+		edit += '<tr>'
+		edit += '<td><input class="form-control" type="text" id="name" value="'+result.name+'"required><p id="val" style="color:red;"></p></td>'
+		edit += '</tr>'
+		edit += '<tr>'
+		edit += '<td>Kode VA*</td>'
+		edit += '<tr>'
+		edit += '<td><input class="form-control" type="text" id="kodeva" value="'+result.va_code+'" required><p id="val1" style="color:red;"></p></td>'
+		edit += '</tr>'
+		edit +='<tr>'
+		edit +='<td align="middle">'
+		edit += '<button class="btn btn-outline-secondary" data-bs-dismiss="modal" style"margin-right:2px;">close</button>'
+		edit +='<button onclick="saveedit(this.value)" value="'+result.id+'" class="btn btn-outline-primary">Save</button>'
+		edit +='</td>'
+		edit +='</tr>'
+		
+		$("#mymodal").modal('show')
+		$(".modal-title").html("Ubah Bank")
+		$(".modal-body").html(edit)
+		}
+	})
+}
+
+function checkedit(){
+	var nam =$('#name').val().trim().toLowerCase()
+	var va_code=$('#kodeva').val()
+	if(nam==""||va_code==""){
+		document.getElementById("val").innerHTML="Harap Nama Bank Harus Di Isi"
+		document.getElementById("val1").innerHTML="Harap VA Code Harus Di Isi"
+	}
+	else{
+		$.ajax({
+			url:'/api/bankcheck/'+nam, 
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+		document.getElementById("val").innerHTML="Already"
+		document.getElementById("val1").innerHTML="Already"
+				}
+				else{
+					saveedit();
+				}
+			}
+		})
+	}
+}
+
+function saveedit(id){
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+var hh = String(today.getHours()).padStart(2,'0');
+var mi = String(today.getMinutes()).padStart(2, '0');
+var ss = String(today.getSeconds()).padStart(2, '0');
+today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'
+
+$.ajax({
+	url: '/api/bank/'+id,
+	type: 'get',
+	contentType: 'application/json',
+	success:function(result){
+var vedit ='{'
+vedit += '"created_by":1,'
+vedit +='"modified_by":1,'
+vedit += '"created_on":"'+result.created_on+'",'
+vedit += '"modified_on":'+today+','
+vedit += '"name":"'+$('#name').val()+'",'
+vedit += '"va_code":"'+$('#kodeva').val()+'"'
+vedit += '}'
+console.log(vedit)
+$.ajax({
+	url:'/api/editBank/'+id,
+	type: 'put',
+	data: vedit,
+	contentType: 'application/json',
+	success : function(result){
+		console.log(result)
+		location.replace('/bank/index')	
+		}
+})
+		
+	}
+})
+
+}
+function Deleteform(id){ 
+	$.ajax({
+		url: '/api/bank/'+id,
+		type: 'get',
+		contentType:'application/json',
+		success:function(result){
+			var del = ''
+			del += '<table class="table table-borderless">'
+			del +='<tr>'
+			del +='<td align="middle" ><input value="'+result.name+'"  id="name" hidden > Apakah anda yakin menghapus Data Bank "'+result.name+'" ?</td>'
+			del +='<td align="middle"  ><input value="'+result.va_code+'"  id="kodeva" hidden ></td>'
+			del += '</tr>'
+			del += '<tr>'
+			del += '<td align="middle">'
+			del += '<button class="btn btn-outline-success" onclick="javascript:location.replace(\'/bank/index\')" style"margin-right:2px;">Cancel</button>'
+			del += '<button class="btn btn-outline-danger" onclick="deleteedit('+id+')">Delete</button>'	
+			del += '</td>'
+			del += '</tr>'	
+			del += '<table>'
+				$("#mymodal").modal('show')	
+				$(".modal-title").html("Hapus Bank")
+				$(".modal-body").html(del)	
+				console.log(result)
+		}
+	})	
+} 
+function deleteedit(id){
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+var hh = String(today.getHours()).padStart(2,'0');
+var mi = String(today.getMinutes()).padStart(2, '0');
+var ss = String(today.getSeconds()).padStart(2, '0');
+today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'
+
+$.ajax({
+	url: '/api/bank/'+id,
+	type: 'get',
+	contentType:'application/json',
+	success:function(result){
+	var del ='{'
+	del += '"created_by":1,'
+	del += '"deleted_by":1,'
+	del += '"modified_on":'+result.modified_on+','
+	del += '"modified_by":'+result.modified_by+','
+	del += '"created_on":"'+result.created_on+'",'
+	del += '"deleted_on":'+today+','
+	del += '"name":"'+$('#name').val()+'",'
+	del += '"va_code":"'+$('#kodeva').val()+'",'
+	del += '"is_delete":true'
+	del +='}'
+	console.log(del)
+	$.ajax({
+		url:'/api/editBank/'+id,
+		type: 'put',
+		data: del,
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+			$('#mymodal').modal('hide');
+			reloaddata();
+		}
+	})
+		
+	}
+})
+	
+}
+
+
+</script>
+</div>
+</body>
+</html>

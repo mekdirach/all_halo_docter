@@ -1,0 +1,65 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout}">
+<head>
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/mystyle.css">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<title>Lokasi</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+
+<p align="right">
+	<button onclick="addform()" class="btn btn-outline-primary">Tambah</button>
+</p>
+<!--p align="left">
+	<input type="text" >
+</p-->
+<table class="table table-primary" id="mytable">
+<thead>
+<tr align="middle">
+	<th>Nama</th>
+	<th>Level Lokasi</th>
+	<th>Wilayah</th>
+	<th>#</th>
+</tr>
+</thead>
+<tbody id="tampildata">
+<tr th:each ="item, iter : ${listloc}" align="middle">
+<td th:text="${item.Name}"></td>
+<td th:text="${item.m_location_level.Name}"></td>
+<td><input id="wilayah" th:text="${item.parent_id}" th:value="${item.parent_id}" type="text" disabled></td>
+<td><button class="btn btn-outline-primary"  value ="'+result[i].id+'"onclick="editform(this.value)">Edit</button>
+<button class="btn btn-outline-danger" value ="'+result[i].id+'" onclick="deleteawal(this.value)">Delete</button>
+</td>
+</tr>
+</tbody>
+</table>
+<script>
+		var parent_id = [] 
+		$("#wilayah").each(function(){
+			temp = $(this).attr('value')
+			parent_id.push(temp)
+		})
+		console.log(parent_id)
+	for(i=1; i<parent_id.length;i++){
+	$.ajax({
+	url: '/api/getwilayah/'+parent_id[i],
+	type : 'get',
+	contentType: 'application/json',
+	success:function(result){
+		console.log(result)
+		var str=""
+		str += '<td th:text="'+result.abbreviation+' '+result.name+'"></td>'
+		$("#wilayah").html(str)
+	}
+})
+}
+
+</script>
+</div>
+</body>
+</html>

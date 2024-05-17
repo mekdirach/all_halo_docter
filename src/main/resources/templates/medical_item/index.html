@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+	layout:decorate="~{fragments/layout}">
+<head>
+	<title>Medical Item Category</title>
+</head>
+<body>
+<div layout:fragment="content">
+<p align="right">
+<button class="btn btn-outline-primary" onclick="addform()"><i class="fa fa-plus"></i>Add Medical Item Category</button></p>
+	<table class="display" id="tablecar" style="padding: 30px;">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Dibuat Oleh</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody id="itemcar"> 
+		
+	</tbody>
+</table>
+<script>
+	reloadData();
+
+	function reloadData(){
+		$.ajax({
+			url : '/api/medicalitemcar/',
+			type : 'get',
+			contentType : 'application/json',
+			success:function(result){
+				var str =" ";
+				
+				for(i = 0; i < result.length; i++){
+					str +='<tr>'
+					str +='<td>' +result[i].name+'</td>'
+					str +='<td>' +result[i].User_create.m_biodata.fullname+'</td>'
+					str += '<td>'
+					str += '<div class="d-grid gap-2 d-md-flex"><button class="btn btn-warning me-md-2" value="'+result[i].id+'" onclick="formupdate(this.value)"><span class="btn-label"> <i class="fa fa-edit"></i> </span></button>'
+					str += '<button class="btn btn-danger" value="'+result[i].id+'" onclick="formdelete(this.value)"><span class="btn-label"> <i class="fa fa-trash"></i> </span></button></div>'
+					str += '</td>'
+					str += '</tr>'
+				}
+				$('#itemcar').html(str)
+				str +='</tr>'
+			}
+		})
+	}
+	$(document).ready(function(){
+		$('#tablecar').DataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false
+		
+        });
+	})
+
+	function addform(){
+		var tab = '<table class="table">'
+			tab += '<tr>'
+			tab += '<td>NAMA*</td><td><input type="text" id="name" class="form-control" required><p id="val" style="color:red;"></p></td>'
+			tab += '</tr>'
+			tab += '<tr><td>Kode</td><td><input type="text" id="kode" class="form-control" required></td></tr>'
+			tab += '<tr>'
+			tab += '<td colspan="3" align="right"><div class="d-grid gap-2 d-md-flex justify-content-md-end"><button class="btn btn-secondary me-md-2" onclick="batal()">Batal</button><button class="btn btn-primary" onclick="checking()" class="btn btn-primary"> Simpan</button></div></td>'
+			tab += '</tr>'
+			tab += '</table>'
+			
+		$('#mymodal').modal('show')
+		$('.modal-title').html('Tambah')
+		$('.modal-body').html(tab)
+		
+	}
+	function checking(){
+		var nama = $('#name').val().trim().toLowerCase()
+		if(nama == ""){
+			document.getElementById("val").innerHTML = 'Nama wajib diisi!';
+		}else{
+			$.ajax({
+				url : '/api/medicalitemcategory/'+nama,
+				type : 'get',
+				contentType : 'application/json',
+				success: function(result){
+					if(result.length != 0){
+						document.getElementById("val").innerHTML = 'Nama sudah ada!';
+					}else {
+						save();
+					}
+				}
+			})
+		}
+	}
+	function save(){
+		var datacar = '{'
+			datacar += '"name":"'+($('#name').val()+"-"+$('#kode').val()) +'"'
+			datacar += '}'
+			console.log(datacar)
+		$.ajax({
+			url : '/api/medicalitemcar/',
+			type : 'post',
+			data : datacar,
+			contentType : 'application/json',
+			success:function(itemcar){
+				console.log(itemcar)
+				$('#mymodal').modal('hide');
+				reloadData();
+			}
+		})
+	}
+	
+
+	function deleteData(id){
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+		var hh = String(today.getHours()).padStart(2,'0');
+		var mi = String(today.getMinutes()).padStart(2, '0');
+		var ss = String(today.getSeconds()).padStart(2, '0');
+		today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'
+		
+		$.ajax({
+			url: '/api/medicalitem/'+id,
+			type: 'get',
+			contentType: 'application/json',
+			success: function(data){
+				console.log(data)
+				var dataup ='{'
+					dataup += '"name":"'+$('#name').val()+'",'
+					dataup += '"deleted_by":1,'
+					dataup += '"is_delete": true,'
+					dataup += '"created_on":"'+data.created_on+'",'
+					dataup += '"deleted_on":'+today+','
+					if(data.modified_on === null){
+						dataup += '"modified_on":'+data.modified_on+','
+					}else{
+						dataup += '"modified_on":"'+data.modified_on+'",'
+					}
+					dataup += '"modified_by": '+data.modified_by+''
+					dataup += '}'
+				console.log(dataup)
+		
+				$.ajax({
+					url: '/api/medicalitemcar/'+id,
+					type: 'put',
+					data: dataup,
+					contentType: 'application/json',
+					success: function(updata){
+						console.log(dataup)
+						console.log(updata)
+						$('#mymodal').modal('hide');
+						reloadData();
+					}
+		
+				})
+			}		
+		})
+	}
+
+	function formdelete(id){
+		
+		$.ajax({
+			url: '/api/medicalitem/' + id,
+			type: 'get',
+			contentType: 'application/json',
+			success: function(data){
+				console.log(data)
+				var dataitem = '<input id="name" value="'+data.name+'" hidden> Anda akan menghapus '+data.name+'?'
+					dataitem += '<p align="right">'
+					dataitem += '<div class="d-grid gap-2 d-md-flex justify-content-md-end"><button class="btn btn-secondary me-md-2" onclick="batal()">Batal</button><button class="btn btn-danger" onclick="deleteData('+data.id+')">Hapus</button></div>'
+					dataitem += '</p>'
+
+						$('#mymodal').modal('show');
+						$('.modal-title').html("Hapus !")
+						$('.modal-body').html(dataitem)
+			}
+		})
+	}
+	
+	function formupdate(id){
+		$.ajax({
+			url: '/api/medicalitem/' + id,
+			type: 'get',
+			contentType: 'application/json',
+			success: function(categoryitem){
+				console.log(categoryitem)
+				let car = categoryitem.name.split("-");
+				console.log(car)
+				var form = '<table class="table">'
+					form += '<tr><input id="id" value="'+categoryitem.id+'" hidden>'
+					for(i =0; i<1; i++){
+					form += '<td>Name</td><td><input type="text" id="name" class="form-control" value="'+car[0]+'"><p id="val" style="color:red;"></p></td>'
+					form += '</tr>'
+					form += '<tr><td>Kode</td><td><input type="text" id="kode" class="form-control" value="'+car[1]+'"><p id="val" style="color:red;"></p></td></tr>'
+					}
+						
+					form += '<tr>'
+					form += '<td colspan="3" align="right"><div class="d-grid gap-2 d-md-flex justify-content-md-end"><button class="btn btn-secondary me-md-2" onclick="batal()">Batal</button><button class="btn btn-primary" value="'+categoryitem.id+'" onclick="checkupdate()">Simpan</button></div></td>'
+					form += '</tr>'
+					form += '</table>'
+				$('#mymodal').modal('show')
+				$('.modal-title').html('Ubah')
+				$('.modal-body').html(form)
+			}	
+		})
+	}
+	function checkupdate(){
+		var nama = $('#name').val().trim().toLowerCase()
+		var id = $('#id').val()
+		if(nama == ""){
+			document.getElementById("val").innerHTML = 'Nama wajib diisi!';
+		}else{
+			$.ajax({
+				url : '/api/medicalitemcategory/'+nama,
+				type : 'get',
+				contentType : 'application/json',
+				success: function(result){
+					if(result.length != 0){
+						document.getElementById("val").innerHTML = 'Nama belum diganti!';
+					}else {
+						saveupdate(id);
+					}
+				}
+			})
+		}
+	}
+	
+	function saveupdate(id){
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+		var hh = String(today.getHours()).padStart(2,'0');
+		var mi = String(today.getMinutes()).padStart(2, '0');
+		var ss = String(today.getSeconds()).padStart(2, '0');
+		today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'
+		var nama = $('#name').val().trim()
+		var kode1 = $('#kode').val().trim()
+		
+		if(nama == ""){
+			document.getElementById("val").innerHTML = 'Nama wajib diisi!';
+		}else{
+		$.ajax({
+			url: '/api/medicalitem/'+id,
+			type: 'get',
+			contentType: 'application/json',
+			success: function(data){
+				console.log(data)
+				var dataup ='{'
+					dataup += '"name":"'+(nama+"-"+kode1)+'",'
+					dataup += '"created_on":"'+data.created_on+'",'
+					dataup += '"modified_by":1,'
+					dataup += '"modified_on":'+today+''
+					dataup += '}'
+			console.log(dataup)
+		$.ajax({
+			url: '/api/medicalitemcar/'+id,
+			type: 'put',
+			data: dataup,
+			contentType: 'application/json',
+			success: function(updata){
+				console.log(dataup)
+				$('#mymodal').modal('hide');
+				reloadData();
+			}
+		})
+			}
+		})
+		
+	}
+	}
+	
+	function batal(){
+		$('#mymodal').modal('hide');
+		reloadData();
+	}
+</script>
+
+</div>		
+</body>
+</html>

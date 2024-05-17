@@ -1,0 +1,512 @@
+<!Doctype html>
+<html >
+<head>
+	<title> dokterhalo::289 </title>	
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<style>
+		*
+		{
+			margin: 0;
+			padding: 0;
+		}
+		.card-title{
+			color: #457b9d;
+		}
+		.card-header{
+			color: #023047;
+		}
+	</style>
+</head>
+	<body>
+		<div class="modal fade" id="mymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content" >
+				<div class="modal-header" style="background-color: #bde0fe;">
+				  <h5 class="modal-title" id="exampleModalLabel" >Modal title</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				  ...
+				</div>
+			   
+			  </div>
+			</div>
+		  </div>
+		  <div class="modal fade" id="mymodal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content" >
+				<div class="modal-header" style="background-color: #bde0fe;">
+				  <h5 class="modal-title2" id="exampleModalLabel" >Modal title</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body2">
+				  ...
+				</div>
+			   
+			  </div>
+			</div>
+		  </div>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: lightblue; padding: 10px; padding-left: 20px;">
+			  <li class="breadcrumb-item"><a href="/">Home</a> </li>
+			  <li class="breadcrumb-item active" aria-current="page" id="next">Profile</li>
+			</ol>
+		 
+		<div class="d-flex vh-100 justify-content-between" style="padding: 10px;">
+			
+			<div class="d-flex flex-column col-4"> 
+				
+				<div class="card" style="padding: 20px;"> 
+					
+					<div class="d-flex justify-content-end" style="padding-right: 120px;">
+						<button class="btn" style="border: none; cursor:pointer;"  th:each="item:${doctor}" th:value="${item.Biodata_id}" id="foto" onclick="editft(this.value)"><i class="fa fa-pencil"></i></button>
+						
+					</div>
+					<img th:each="item:${doctor}" th:src="@{${'/images/' + item.m_biodata.image_path} }" class="img-fluid rounded mx-auto d-block" style="clip-path: circle();" alt="Responsive image" width="170px">
+						<div class="text-center">
+							<h5 th:each="item:${doctor}" th:text="${item.m_biodata.Fullname}"></h5>
+							<h5 id="spesalisdoctor"></h5>
+						</div>
+						
+						<p class="text-center"> 
+						<i class="fa fa-star" aria-hidden="true" style="color: orange;" ></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i></p>
+						<table border="0" class="table">
+							<tr>
+								<td>Janji </td>
+								<td> <button class="btn btn-sm" style="border-radius: 100%; background-color: #a8dadc;"> <strong th:text="${countjanji}" style="text-align: left; color: #023047;"></strong></button></td>
+							</tr>
+							<tr>
+								<td>Obrolan / Konsultasi</td>
+								<td> <button class="btn btn-sm" style="border-radius: 100%; background-color: #a8dadc;"> <strong th:text="${countchat}" style="text-align: left; color: #023047;"></strong></button> </td>
+								
+							</tr>
+						</table>
+					
+				</div>
+				<div class="card text-dark" style="width: auto;">
+					<div class="card-header" style="background-color: lightblue;"><h4>Tentang saya</h4></div>
+					<div class="card-body">
+					  <h6 class="card-title">Tindakan Medis</h6>
+						<ul style="list-style-type: '- ';" >
+							<li  th:each="treat:${treatment}" th:text="${treat.Name}"></li>
+							
+						</ul>
+					  <h6 class="card-title">Riwayat Praktek</h6>
+						<table class="table-borderless" th:each="item:${praktek}" >
+							<tr id="riwayatpraktek" ></tr>
+							
+						</table>
+					  <h6 class="card-title">Pendidikan</h6>
+
+					  <table class="table-borderless" th:each="edu:${education}">
+						<tr>
+							<td th:text="${edu.Institution_name}" style="padding-left: 20px; font-size: large;"> </td>
+						</tr>
+						<tr>
+							<td th:text="${edu.Major}" style="padding-left: 25px; font-size: small;"></td>
+							<td th:text="${edu.Start_year}" style="font-size: small; padding-left: 100px;"></td>
+						</tr>
+						<tr>
+							
+						</tr>
+					  </table>
+
+						
+					 </div>
+				  </div>
+			</div>
+			<div id="content" class="card col-8" >
+				<div>
+					<div class="card-header">
+					  <ul class="nav nav-tabs card-header-tabs">
+						<li class="nav-item">
+						  <a class="nav-link" aria-current="true" href="#" onclick="spesalisasi()">Spesalisasi</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" aria-current="true" href="#">Tindakan</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="#">Aktivitas</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link" href="#">Konsultasi</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Pengaturan</a>
+						</li>
+					  </ul>
+					</div>
+					<div class="card-body" id="bodycontent">
+					 
+					</div>
+			</div>
+		</div>
+	</nav>
+	<script>
+	function editft(id){
+		$.ajax({
+				url:'/doktor/edit/' +id,
+				type:'get',
+				contentType:'html',
+				success:function(result){
+					$("#mymodal").modal('show')
+					$(".modal-title").html('Edit Foto')
+					$(".modal-body").html(result)
+				}
+			})
+	}
+	function readurl(input){
+		if(input.files && input.files[0]){
+			var reader = new FileReader();
+			
+			reader.onload = function(e){
+				$('#avatar').attr('src', e.target.result);
+				$('#phototext').val($('input[type=file]').val().replace(/C:\\fakepath\\/i,''))
+				//temporary
+			};
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+	
+		var riwayat = ""
+		var year = ""
+		$.ajax({
+			url: '/api/riwayat/',
+			type: 'get',
+			contentType:'application/json',
+			success:function(data){
+				console.log(data);
+				riwayat += '<tr>'
+				for(i =0; i< data.length; i++){
+				riwayat += '<td style="padding-left: 20px;" colspan="2">'+data[i].m_medical_facility.name+', '+data[i].m_medical_facility.m_location.name+'</td>'
+				riwayat += '</tr>'
+				riwayat += '<tr>'
+				riwayat += '<td style="padding-left: 20px;">'+data[i].specialization+'</td>'
+				riwayat += '<td style="padding-left: 120px;">'+String(data[i].created_on).substring(0,4)+' - '+String(data[i].deleted_on).substring(0,4)+'</td>'
+				riwayat += '</tr>'
+				}
+				$('#riwayatpraktek').html(riwayat)
+
+			}
+		})
+		
+		
+			$.ajax({
+				url: '/api/spesalis/',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(data){
+					var spec = "";
+					if(data === undefined){
+						spec += '<p style="font-size:14px;">Belum ada spesialisasi</p>'
+					}else{
+						var spec = "";
+						spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+						spec += '<p class="text-center"><input id="spesalis" value="'+data.m_specialization.name+'" style="border:none; font-size:16px; background-color: white; " class="form-control text-center" readonly></div>'
+					}
+					$('#spesalisdoctor').html(spec)
+					
+				}
+			})
+		
+	
+		function modalphoto(id){
+			$.ajax({
+				url: '/doktor/showimage/'+id,
+				type: 'get',
+				contentType: 'html',
+				success:function(result){
+					$('#mymodal').modal('show')
+					$('.modal-title').html('Edit Photo')
+					$('.modal-body').html(result)
+				}
+			})
+			
+		}
+		function spesalisasi(){
+			var spec ="";
+			$.ajax({
+				url: '/api/spesalis/',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(data){
+					console.log(data)
+					if(data === undefined){
+						//  spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+						//  spec += '<input id="idspec" value="'+data.specialization_id+'" hidden>'
+						spec += '<p>Anda belum menambahkan spesalisasi</p>'
+						spec += '<div class="d-flex align-items-end flex-column bd-highlight mb-3" style="height: 400px;>'                        
+						spec += '<div class="mt-auto p-2 bd-highlight">'                         
+						spec += '<button class="btn btn-primary" style="border-radius:50%;"  onclick="tambahspesalisasi()" ><i class="fa fa-plus" aria-hidden="true"></i></button>'                         
+						spec += '</div>'
+					}else{
+						spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+						spec += '<input id="idspec" value="'+data.specialization_id+'" hidden>'
+						spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+						spec += '<input id="spesalis" value="'+data.m_specialization.name+'" style="border:none;" readonly>'
+						spec += '<div class="d-flex align-items-end flex-column bd-highlight mb-3" style="height: 400px;>'                        
+						spec += '<div class="mt-auto p-2 bd-highlight">'                         
+						spec += '<button class="btn btn-primary" style="border-radius:50%;"  onclick="editspes('+data.id+')" ><i class="fa fa-pencil" aria-hidden="true"></i></button>'                         
+						spec += '</div>'
+						
+					}
+					
+					$('#bodycontent').html(spec)
+					
+				}
+			})
+		}
+		function tambahspesalisasi(){
+			
+			var tambah = ''
+			tambah += '<a style="margin-left: 10%; text-align: left; font-size: 16px;">'
+			tambah += '<div style="margin-right: 10%; margin-left: 10%;">'
+			tambah += '<div class="form-group basic-dropdown">'
+			tambah += '<label for="spesialisasi" class="col-form-label">*Spesialisasi</label>'
+			tambah += '<select class="form-control custom-select custom-select-md" id="spesialisasi"></select>'
+			tambah += '<label id="Msg"></label>'
+			tambah += '</div>'
+			tambah += '</div>'
+			tambah += '<div style="text-align: center">'
+			tambah += '<br>'
+			tambah += '<fieldset class="w-100">'
+			tambah += '<button type="button" class="btn btn-outline-primary" onclick="batal()" style="margin-right: 5%; border-radius: 8px; width: 25%; font-size: 15px;">Batal</button>'
+			tambah += '<button type="button" class="btn btn-primary" style="margin-right: 5%; border-radius: 8px; width: 25%; font-size: 15px;" onclick="savedata()" id="save" >Simpan</button>'
+			tambah += '<br>'
+			tambah += '</fieldset>'
+			tambah += '</div>'
+				
+			$('#mymodal').modal('show')
+			$('.modal-title').html('Pilih Spesalisasi Anda')
+			$('.modal-body').html(tambah)
+
+			$.ajax({
+				url: '/api/listspesialis/',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(result){
+					console.log(result)
+					var optvar = '<option value="" selected>--Pilih Spesialisasi--</option>';
+					for(i=0; i<result.length;i++){
+						optvar += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+					}
+					$('#spesialisasi').html(optvar)
+
+				}
+			})
+		}
+
+
+		function editspes(){
+			var idcu = $('#idcurrent').val()
+			console.log(idcu)
+			var edit = ''
+			edit += '<a style="margin-left: 10%; text-align: left; font-size: 16px;">'
+			edit += '<div style="margin-right: 10%; margin-left: 10%;">'
+			edit += '<div class="form-group basic-dropdown">'
+			edit += '<label for="spesialisasi" class="col-form-label">*Spesialisasi</label>'
+			edit += '<select class="form-control custom-select custom-select-md" id="spesialisasi"></select>'
+			edit += '<label id="Msg" style="color:red;"></label>'
+			edit += '</div>'
+			edit += '</div>'
+			edit += '<div style="text-align: center">'
+			edit += '<br>'
+			edit += '<fieldset class="w-100">'
+			edit += '<button type="button" class="btn btn-outline-primary" onclick="batal()" style="margin-right: 5%; border-radius: 8px; width: 25%; font-size: 15px;">Batal</button>'
+			edit += '<button type="button" class="btn btn-primary" style="margin-right: 5%; border-radius: 8px; width: 25%; font-size: 15px;" onclick="save(this.value)" id="save" value="'+idcu+'">Simpan</button>'
+			edit += '<br>'
+			edit += '</fieldset>'
+			edit += '</div>'
+				
+			$('#mymodal').modal('show')
+			$('.modal-title').html('Pilih Spesalisasi Anda')
+			$('.modal-body').html(edit)
+
+			$.ajax({
+				url: '/api/listspesialis/',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(result){
+					$.ajax({
+							url: '/api/spesalis/',
+							type: 'get',
+							contentType: 'application/json',
+							success:function(data){
+								console.log(result)
+								for(i=0; i<result.length;i++){
+									if(result[i].id == data.specialization_id){
+										var optvar = '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+									}
+									
+								}
+								for(i=0; i<result.length;i++){
+									if(result[i].id != data.specialization_id){
+										optvar += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+									}
+								}
+							
+								$('#spesialisasi').html(optvar)
+								
+				}
+			})
+
+				}
+			})
+		}
+		function save(id) {
+			var spesialisasi = $('#spesialisasi').val();
+			
+			if (spesialisasi == "") {
+				$('#Msg').html('*Spesialisasi tidak boleh kosong')
+				$('#spesialisasi').css('border-color', 'red');
+
+			} else {
+				var data ='{'
+				data += '"specialization_id": '+spesialisasi+' '
+				
+				data += '}'
+				$.ajax({
+					url: '/api/editcurrent/'+id,
+					type:'put',
+					data: data,
+					contentType: 'application/json',
+					success: function(result){
+						var dataspec = '<div class="text-center" style="padding:40px;">'
+							dataspec +='<h3><Strong>Spesalisasi berhasil diubah</Strong></h3>'
+							dataspec += '</div>'
+						
+						$('#mymodal').modal('hide')
+						$('#mymodal2').modal('show')
+						$('.modal-title2').html('Sukses!')
+						$('.modal-body2').html(dataspec)
+						var spec ="";
+				$.ajax({
+					url: '/api/spesalis/',
+					type: 'get',
+					contentType: 'application/json',
+					success:function(data){
+						console.log(data.id)
+						console.log(data.doctor_id)
+						console.log(data.specialization_id)
+							spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+							spec += '<input id="idspec" value="'+data.specialization_id+'" hidden>'
+							spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+							spec += '<input id="spesalis" value="'+data.m_specialization.name+'" style="border:none;">'
+							spec += '<div class="d-flex align-items-end flex-column bd-highlight mb-3" style="height: 200px;>'                        
+							spec += '<div class="mt-auto p-2 bd-highlight">'                         
+							spec += '<button class="btn btn-primary" style="border-radius:50%;"  onclick="editspes()" ><i class="fa fa-pencil" aria-hidden="true"></i></button>'                         
+							spec += '</div>'
+
+					
+						$('#bodycontent').html(spec)
+
+						$.ajax({
+							url: '/api/spesalis/',
+							type: 'get',
+							contentType: 'application/json',
+							success:function(data){
+								var spec = "";
+								if(data === undefined){
+									spec += '<p style="font-size:14px;">Belum ada spesialisasi</p>'
+								}else{
+									var spec = "";
+									spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+									spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+									spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+									spec += '<p class="text-center"><input id="spesalis" value="'+data.m_specialization.name+'" style="border:none; font-size:16px; background-color: white; " class="form-control text-center" readonly></div>'
+								}
+								$('#spesalisdoctor').html(spec)
+					
+				}
+			})
+				}
+			})
+			
+					}
+					
+				})
+		
+			}
+				
+		}
+		function savedata() {
+			var spesialisasi = $('#spesialisasi').val();
+			
+			if (spesialisasi == "") {
+				$('#Msg').html('*Spesialisasi tidak boleh kosong')
+				$('#spesialisasi').css('border-color', 'red');
+
+			} else {
+				var data ='{'
+				data += '"specialization_id": '+spesialisasi+' '
+				
+				data += '}'
+				$.ajax({
+					url: '/api/save/',
+					type:'post',
+					data: data,
+					contentType: 'application/json',
+					success: function(result){
+						var dataspec = '<div class="text-center" style="padding:40px;">'
+							dataspec +='<h3><Strong>Spesalisasi berhasil diubah</Strong></h3>'
+							dataspec += '</div>'
+						
+						$('#mymodal').modal('hide')
+						$('#mymodal2').modal('show')
+						$('.modal-title2').html('Sukses!')
+						$('.modal-body2').html(dataspec)
+						var spec ="";
+				$.ajax({
+					url: '/api/spesalis/',
+					type: 'get',
+					contentType: 'application/json',
+					success:function(data){
+							spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+							spec += '<input id="idspec" value="'+data.specialization_id+'" hidden>'
+							spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+							spec += '<input id="spesalis" value="'+data.m_specialization.name+'" style="border:none;">'
+							spec += '<div class="d-flex align-items-end flex-column bd-highlight mb-3" style="height: 200px;>'                        
+							spec += '<div class="mt-auto p-2 bd-highlight">'                         
+							spec += '<button class="btn btn-primary" style="border-radius:50%;"  onclick="editspes()" ><i class="fa fa-pencil" aria-hidden="true"></i></button>'                         
+							spec += '</div>'
+
+					
+						$('#bodycontent').html(spec)
+						$.ajax({
+							url: '/api/spesalis/',
+							type: 'get',
+							contentType: 'application/json',
+							success:function(data){
+								var spec = "";
+								if(data === undefined){
+									spec += '<p style="font-size:14px;">Belum ada spesialisasi</p>'
+								}else{
+									var spec = "";
+									spec += '<input id="idcurrent" value="'+data.id+'" hidden>'
+									spec += '<input id="idspesalis" value="'+data.specialization_id+'" hidden>'
+									spec += '<p class="text-center"><input id="spesalis" value="'+data.m_specialization.name+'" style="border:none; font-size:16px; background-color: white; " class="form-control text-center" readonly></div>'
+								}
+								$('#spesalisdoctor').html(spec)
+					
+				}
+			})
+						
+				}
+			}) 	
+					}
+					
+				})
+				
+			}
+				
+		}
+
+		function batal(){
+			$('#mymodal').modal('hide')
+		}
+	</script>
+	</body>
+</html>

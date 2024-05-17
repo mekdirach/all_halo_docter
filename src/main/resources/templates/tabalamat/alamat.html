@@ -1,0 +1,603 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout2}">
+<head>
+	<title>Alamat</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+
+<table class="table table-bordered">
+<tr>
+<td><input type="text" class="form-control"placeholder="Cari alamat atau nama penerima" id="searchdata" onchange="search()"></td>
+<td style="width:1px;">Urutan</td>
+<td><select class="form-control" placeholder="Label Alamat" id="sortby">
+<option value="">Filter</option>
+<option value="label">label</option>
+<option value="recipient">Penerima</option>
+<option value="address">Alamat</option>
+</select>
+</td>
+<tr>
+<td><button class="btn btn-outline-success" onclick="multidel()" >hapus</button></td>
+<td></td>
+<td colspan="2" align="right"><button onclick="addform()" class="btn btn-outline-primary">Tambah</button><trd>
+</tr>
+</table>
+
+<table class="table" id="mytable">
+<thead>
+</thead>
+<tbody id="dataproduct"></tbody>
+</table>
+<script>
+function sortlabel(){
+	$.ajax({
+		url:'/api/sortlabel',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			var data=""
+			for(i=0;i<result.length;i++){
+				console.log(result[i])
+				data += '<table class="table table">'
+				data += '<tr>'
+				data += '<td><input value="'+result[i].id+'" id="cek" class="form-check-input" type="checkbox"></td>'
+				data += '<td>' 		
+				data += '<h5>'+result[i].label+'</h5>'
+				data += '<h6>'+result[i].recipient+','+result[i].recipient_phone_number+'</h6>'
+				data += '<h7>'+result[i].address+'</h7>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)"  value="'+result[i].id+'">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+			}
+			$('#dataproduct').html(data);
+			
+		}
+	})
+}
+$("#sortby").change (function (){
+	var select = $("#sortby option:selected").val()
+	console.log(select)
+	$.ajax({
+		url:'/api/sort'+select,
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			var data=""
+			for(i=0;i<result.length;i++){
+				console.log(result[i])
+				data += '<table class="table table">'
+				data += '<tr>'
+				data += '<td><input value="'+result[i].id+'" id="cek" class="form-check-input" type="checkbox"></td>'
+				data += '<td>'
+				data += '<h5>'+result[i].label+'</h5>'
+				data += '<h6>'+result[i].recipient+','+result[i].recipient_phone_number+'</h6>'
+				data += '<h7>'+result[i].address+'</h7>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)"  value="'+result[i].id+'">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+			}
+			$('#dataproduct').html(data);
+			
+		}
+	})
+	
+})
+function search(){
+	var cari = $('#searchdata').val()
+	$.ajax({
+		url:'/api/alamat/search/'+ cari.toLowerCase(),
+		type : 'get',
+		contentType:'application/json',
+		success:function(result){
+			console.log(result)
+			var data = '';
+			for(i=0; i<result.length;i++){
+				console.log(result[i])
+				data += '<table class="table ">'
+				data += '<tr>'
+				data += '<td><input value="'+result[i].id+'" id="cek" class="form-check-input" type="checkbox"></td>'
+				data += '<td>'
+				data += '<h5>'+result[i].label+'</h5>'
+				data += '<h6>'+result[i].recipient+','+result[i].recipient_phone_number+'</h6>'
+				data += '<h7>'+result[i].address+'</h7>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)"  value="'+result[i].id+'">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+			}
+			$('#dataproduct').html(data);
+		}
+	})
+}
+reloaddata();
+function reloaddata(){
+	$.ajax({
+		url: '/api/alamat',
+		type: 'get',
+		contentType: 'application /json',
+		success:function(result){
+			console.log(result)
+			console.log(result.length)
+			var data = '';
+			for(i=0; i<result.length;i++){
+				console.log(result[i])
+				data += '<table class="table table-borderless ">'
+				data += '<tr>'
+				data += '<td><input value="'+result[i].id+'" id="cek" type="checkbox"></td>'
+				data += '<td>'
+				data += '<h5>'+result[i].label+'</h5>'
+				data += '<h6>'+result[i].recipient+','+result[i].recipient_phone_number+'</h6>'
+				data += '<h7>'+result[i].address+'</h7>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)"  value="'+result[i].id+'">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+			}
+			$('#dataproduct').html(data)
+		}
+	})
+	$(document).ready( function () {$('#mytable').DataTable({"bLengthChange": false,"bFilter": true, "bInfo":false});});
+}
+function addform(){
+	var form='<table class="table table-borderless">'
+	form += '<tr>'
+	form += '<td><input id=biodata_id value="5" hidden></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Label Alamat*</td>'
+	form += '</tr>'
+	form += '<td><input type="text" class="form-control" id="label" required placeholder="Contoh:Rumah,Kantor"><p id="val" style="color:red;"></p></td>'
+	form += '</tr>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Nama Penerima*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input type="text" class="form-control" id="nama_penerima" required><p id="val1" style="color:red;"></p></td>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Nomer HP Penerima*</td>'
+	form += '</tr>' 
+	form += '<td><input type="text" class="form-control" id="telp_penerima" required><p id="val2" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Kecematan/Kota*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><select id="wilayah" class="form-control"><p id="val3" style="color:red;"></p><select></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Kode Pos*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input type="text" class="form-control" id="kodepos" required><p id="val4" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Alamat*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><textarea class="form-control" required placeholder="Masukan Alamat" id="alamat"></textarea><p id="val5"></p></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td align="middle">'
+    form += '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>'
+    form += '<button type="button" class="btn btn-outline-primary"  onclick="check()" >Save changes</button>'
+	form +='</td>'
+	form += '</tr>'
+	form +='</table>'
+			$("#mymodal").modal('show')
+			$(".modal-title").html('Tambah Alamat')
+			$(".modal-body").html(form)
+			
+	$.ajax({
+		url: '/api/lokasi',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			var lok = '';
+			for(i=0;i<result.length;i++){
+				lok += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+			}
+			$('#wilayah').html(lok)
+		}
+	})
+			
+}
+function check(){
+	var bioid = $('#biodata_id').val()
+	var label =$('#label').val().trim().toLowerCase()
+	var nama_p =$('#nama_penerima').val().trim().toLowerCase()
+	var telp_p = $('#telp_penerima').val()
+	var wil = $('#wilayah').val()
+	var kodpos = $('#kodepos').val()
+	var alamat= $('#alamat').val()
+	if(label==""||nama_p==""||telp_p==""||wil==""||kodpos==""||alamat==""){
+		document.getElementById("val").innerHTML="Fail"
+		document.getElementById("val1").innerHTML="Fail"
+		document.getElementById("val2").innerHTML="Fail"
+		document.getElementById("val3").innerHTML="Fail"
+		document.getElementById("val4").innerHTML="Fail"
+		document.getElementById("val5").innerHTML="Fail"
+	}
+	else{
+		$.ajax({
+			url: '/api/cekbio/'+bioid,
+			type: 'get',
+			contentType: 'application/json',
+			success:function(result){
+				console.log(result)
+			if(result.length==bioid){
+				$.ajax({
+			url:'/api/ceklabel/'+label,
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+		document.getElementById("val").innerHTML="Nama Label sudah ada"
+				}
+					else{
+				save()
+				}
+			}
+			})
+			}
+			else{
+				save()
+		}
+		}
+		})
+	}
+}
+function save(){
+var sav = '{'
+sav += '"created_by":1,'
+sav += '"biodata_id":'+$('#biodata_id').val()+','
+sav += '"label":"'+$('#label').val()+'",'
+sav += '"recipient":"'+$('#nama_penerima').val()+'",'
+sav += '"recipient_phone_number":"'+$('#telp_penerima').val()+'",'
+sav += '"location_id":'+$('#wilayah').val()+','
+sav += '"postal_code":'+$('#kodepos').val()+','
+sav += '"address":"'+$('#alamat').val()+'"'
+sav += '}'
+console.log(sav);
+$.ajax({
+	url: '/api/tambahalamat',
+	type: 'post',
+	data: sav,
+	contentType: 'application/json',
+	success:function(result){
+	console.log(result)
+	console.log(result.biodata_id)
+	$('#mymodal').modal('hide')
+	reloaddata();
+	}
+})
+}
+function editform(id){
+	console.log(id)
+	$.ajax({
+		url: '/api/alamat/'+id,
+		type: 'get',
+		contentType: 'application/json',
+		success: function(result){
+		console.log(result.label)
+		console.log(result.address)
+		var form='<table class="table table-borderless">'
+		form += '<tr>'
+		form += '<td>Label Alamat*</td>'
+		form += '</tr>'
+		form += '<td><input type="text" class="form-control" id="label" value="'+result.label+'" required><p id="val" style="color:red;"></p></td>'
+		form += '</tr>'
+		form +='</tr>'
+		form += '<tr>'
+		form += '<td>Nama Penerima*</td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td><input type="text" class="form-control" id="nama_penerima" required value="'+result.recipient+'"><p id="val1" style="color:red;"></p></td>'
+		form +='</tr>'
+		form += '<tr>'
+		form += '<td>Nomer HP Penerima*</td>'
+		form += '</tr>'
+		form += '<td><input type="text" class="form-control" id="telp_penerima" required value="'+result.recipient_phone_number+'"><p id="val" style="color:red;"></p></td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td>Kecematan/Kota*</td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td><select class="form-control"  id="wilayah" value="'+result.location_id+'"></select></td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td>Kode Pos*</td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td><input type="text" class="form-control" id="kodepos" required value="'+result.postal_code+'"><p id="val" style="color:red;"></p></td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td>Alamat*</td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<td><textarea class="form-control"required  id="alamat" value="'+result.address+'">'+result.address+'</textarea></td>'
+		form += '</tr>'
+		form += '<tr>'
+		form += '<tr>'
+		form += '<td align="middle">'
+	    form += '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>'
+	    form += '<button type="button" class="btn btn-outline-primary" value="'+result.id+'" onclick="saveedit(this.value)" >Save changes</button>'
+		form +='</td>'
+		form += '</tr>'
+		form +='</table>'
+				$("#mymodal").modal('show')
+				$(".modal-title").html('Ubah Alamat')
+				$(".modal-body").html(form)
+			$.ajax({
+		url: '/api/lokasi',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			var lok = '';
+			for(i=0;i<result.length;i++){
+				lok += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+			}
+			$('#wilayah').html(lok)
+	}
+	})
+	}
+	})
+}
+
+function checkedit(){
+	var id = $('#id').val()
+	var nam =$('#name').val().trim().toLowerCase()
+	var va_code=$('#kodeva').val()
+	if(nam==""||va_code==""){
+		document.getElementById("val").innerHTML="Fail"
+		document.getElementById("val1").innerHTML="Fail"
+	}
+	else{
+		$.ajax({
+			url:'/api/bankcheck/'+nam,
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+		document.getElementById("val").innerHTML="Already"
+		document.getElementById("val1").innerHTML="Already"
+				}
+				else{
+					saveedit();
+				}
+			}
+		})
+	}
+}
+
+function saveedit(id){
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+var hh = String(today.getHours()).padStart(2,'0');
+var mi = String(today.getMinutes()).padStart(2, '0');
+var ss = String(today.getSeconds()).padStart(2, '0');
+today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'	
+	
+$.ajax({
+	url:'/api/alamat/'+id,
+	type: 'get',
+	contentType: 'application/json',
+	success:function(result){
+		 
+ var savedit = '{'
+savedit += '"biodata_id":'+result.biodata_id+','
+savedit += '"created_by":1,'
+savedit += '"modified_by":1,'
+savedit += '"created_on":"'+result.created_on+'",'
+savedit += '"modified_on":'+today+','
+savedit += '"label":"'+$('#label').val()+'",'
+savedit += '"recipient":"'+$('#nama_penerima').val()+'",'
+savedit += '"recipient_phone_number":"'+$('#telp_penerima').val()+'",'
+savedit += '"location_id":"'+$('#wilayah').val()+'",'
+savedit += '"postal_code":"'+$('#kodepos').val()+'",'
+savedit += '"address":"'+$('#alamat').val()+'"'
+savedit += '}'
+console.log(savedit)
+$.ajax({
+	url:'/api/editalamat/'+id,
+	type: 'put',
+	data: savedit,
+	contentType: 'application/json',
+	success : function(result){
+		console.log(result)
+		$.ajax({
+		url: '/api/alamat',
+		type: 'get',
+		contentType: 'application /json',
+		success:function(result){
+			$('#mymodal').modal('hide')
+			console.log(result)
+			console.log(result.length)
+			var data = '';
+			for(i=0; i<result.length;i++){
+				console.log(result[i])
+				data += '<table class="table tabl">'
+				data += '<tr>'
+				data += '<td><input class="form-check-input" type="checkbox"></td>'
+				data += '<td>'
+				data += '<h5>'+result[i].label+'</h5>'
+				data += '<h6>'+result[i].recipient+','+result[i].recipient_phone_number+'</h6>'
+				data += '<h7>'+result[i].address+'</h7>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" value="'+result[i].id+'" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)"  value="'+result[i].id+'">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+			}
+			$('#dataproduct').html(data)
+		}
+	})
+			
+		}
+	})
+		
+	}
+	
+})	
+
+ 
+ 
+
+}
+function Deleteform(id){ 
+	$.ajax({
+		url: '/api/alamat/'+id,
+		type: 'get',
+		contentType:'application/json',
+		success:function(result){
+			var del = ''
+			del += '<table class="table table-borderless">'
+			del +='<tr>'
+			del +='<td> Anda yakin ingin mengapus alamat</td>'
+			del +='</tr>'
+			del += '<tr>'
+			del +='<td align="middle" id="label"><h7>"'+result.label+'"</h7></td>'
+			del += '</tr>'
+			del += '<tr>'
+			del += '<td>Anda tidak dapat mengembalikan alamat yang sudah dihapus</td>'
+			del += '</tr>'
+			del += '<tr>'
+			del += '<td align="middle">'
+			del += '<button class="btn btn-outline-success" onclick="javascript:location.replace(\'/alamat/index\')">Cancel</button>'
+			del += '<button class="btn btn-outline-danger" value="'+result.id+'" onclick="deleteedit(this.value)">Delete</button>'	
+			del += '</td>'
+			del += '</tr>'	
+			del += '<table>'
+				$("#mymodal").modal('show')	
+				$(".modal-title").html("Hapus Alamat")
+				$(".modal-body").html(del)	
+		}
+	})	
+} 
+function deleteedit(id){
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+var hh = String(today.getHours()).padStart(2,'0');
+var mi = String(today.getMinutes()).padStart(2, '0');
+var ss = String(today.getSeconds()).padStart(2, '0');
+today = '"'+yyyy+'-'+mm+'-'+dd+'T'+hh+':'+mi+':'+ss+'"'
+
+	$.ajax({
+		url: '/api/alamat/'+id,
+		type: 'get',
+		contentType:'application/json',
+		success:function(result){
+			console.log(result)
+		var del ='{'
+	del += '"biodata_id":'+result.biodata_id+','
+	del += '"created_on":"'+result.created_on+'",'
+	del += '"created_by":'+result.created_by+','
+	del += '"deleted_by":1,'
+	del += '"deleted_on":'+today+','
+	//del += '"modified_on":"'+result.modified_on+'",'
+	//del += '"modified_by":'+result.modified_by+','
+	del += '"label":"'+result.label+'",'
+	del += '"recipient":"'+result.recipient+'",'
+	del += '"recipient_phone_number":"'+result.recipient_phone_number+'",'
+	del += '"postal_code":"'+result.postal_code+'",'
+	del += '"address":"'+result.address+'",'
+	del += '"is_delete":true'
+	del +='}'
+	console.log(del)
+	$.ajax({
+		url:'/api/editalamat/'+id,
+		type: 'put',
+		data: del,
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+			$('#mymodal').modal('hide');
+			reloaddata();
+		}
+})
+}
+})
+}
+
+var checkboxarrays=[];
+$("#id").click(function(){
+	checkboxarrays=[];
+	$("#id:checked").each(function(){
+		id=$(this).attr('value');
+		checkboxarrays.push(id);
+	});
+});
+
+
+function multidel(){
+console.log(checkboxarrays)	
+	var str =''
+	str += '<p> Anda yakin ingin menghapus alamat<br></p>'
+	str += '<br>'
+	str += '<br>'
+	str += '<p align="center"><button style="margin:5px;" class="btn btn-primary" onclick="javascript:window.open(\'/alamat/index\',\'_self\')">Cancel</button>'
+	for (var i=0;i<checkboxarrays.length;i++){
+	$.ajax({
+		url: '/api/'+checkboxarrays[i],
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+			str += '<button class="btn btn-danger" value="'+result.id+'" onclick="del(this.value)"></button>'
+			str += '<div>'+result.address+'</div>'
+			$('#mymodal').modal('show')
+			$('.modal-tittle').html("Hapus Alamat")
+			$('.modal-body').html(str)
+		}
+	})
+	}
+			}
+
+
+function del(){
+	for(var i=0;i<checkboxarrays.length;i++){
+		$.ajax({
+			url: '/api/multidel/'+checkboxarrays[i],
+			type: 'get',
+			contentType:'application/json',
+			success:function(result){
+				window.open('/alamat/index','_self')
+			}
+			
+		})
+	}
+}
+</script>
+</div>
+</body>
+</html>

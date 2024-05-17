@@ -1,0 +1,139 @@
+<!Doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thyemeleaf/layout">
+<head>
+	<title> dokterhalo::289 </title>	
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+	
+</head>
+<body>
+<div class="modal fade" id="mymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: lightgray;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <!--div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div-->
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="mymodal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: lightgray;">
+      <div class="modal-header">
+        <h5 class="modal-title2" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body2">
+        ...
+      </div>
+      <!--div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div-->
+    </div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2EB3AB;">
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+    <!-- Navbar brand -->
+    <a class="navbar-brand" href="/home"><img id="MDB-logo"
+        src="https://blog.assist.id/content/images/2018/12/Assist-Badge.png" width="40" height="40"
+        draggable="false"/></a>
+
+    <!-- Toggle button -->
+	<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible wrapper -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <!-- Left links -->	
+      <form class="d-flex align-items-center w-100 form-search">
+        <div class="input-group">
+          <ul class="navbar-nav ms-3">
+	      <li class="nav-item dropdown">
+	          <button class="btn btn-light nav-link dropdown-toggle fw-bolder" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+	          	<i class="fa fa-bars"></i> Menu
+	          </button>
+	          <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDropdown">
+	            <li><a class="dropdown-item" href="#">Cari Dokter</a></li>
+	            <li><a class="dropdown-item" href="#">Buat Janji</a></li>
+	            <li><a class="dropdown-item" href="#">Cari Obat</a></li>
+	          </ul>
+	      </li>
+      </ul>
+          <input type="search" class="form-control" placeholder="Search" aria-label="Search" />
+        </div>
+        <a href="#!" class="text-white"></a>
+      </form>
+      
+      <ul class="navbar-nav ms-3">
+	      <li class="nav-item dropdown">
+	          <button class="btn btn-success nav-link dropdown-toggle fw-bolder" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+	          	<i class="fa far fa-user-circle"></i> Halo, Magrif!
+	          </button>
+	          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+	            <li><a class="dropdown-item" href="/doktor/profil">Profil</a></li>
+	            <li><a class="dropdown-item" href="#">Pengaturan</a></li>
+	            <li><a class="dropdown-item" href="/">Logout</a></li>
+	          </ul>
+	      </li>
+      </ul>
+    </div>
+    <!-- Collapsible wrapper -->
+  </div>
+  <!-- Container wrapper -->
+</nav>
+<!-- Navbar -->
+
+
+<div id="content" class="table table-striped ">
+<section layout:fragment="content" style="padding:20px"></section>
+</div>
+	
+    <div class="container">
+  <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+    <p class="col-md-4 mb-0 text-muted fw-bolder">&copy; 2022 Xsis Academy, Batch 289</p>
+
+    <a href="https://www.google.com/url?sa=i&url=https%3A%2F%2Fxsis.academy%2F&psig=AOvVaw2ZNhRKKE6TjqqgG0uAdy2V&ust=1655883170627000&source=images&cd=vfe&ved=0CA0QjhxqFwoTCMjc3tSDvvgCFQAAAAAdAAAAABAD" target="_blank" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+      <img src="https://xsis.academy/wp-content/uploads/2017/07/logo-Xsis-Academy_etg.png" width="40" height="32"></svg>
+    </a>
+
+    <ul class="nav col-md-4 justify-content-end fw-bolder">
+      <li class="nav-item"><a href="/home" class="nav-link px-2 text-muted">Home</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Cari Dokter</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Buat Janji</a></li>
+      <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Cari Obat</a></li>
+    </ul>
+  </footer>
+  
+<script>
+	function login(){
+		window.open('/login', '_self')
+	}
+</script>
+  
+</div>
+
+</body>
+
+
+</body>
+</html>

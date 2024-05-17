@@ -1,0 +1,33 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org">
+
+<form th:action="@{~/lokasi/save}" th:object="${m_location}" method="post">
+<input type="hidden" th:field="*{Id}">
+<table class="table table-bordered border-success">
+	<tr>
+		<td>Level lokasi*</td>
+		<td>
+		<select class="form-select">
+			<option th:each="item : ${m_levloc}" th:value="${item.Id}" th:text="${item.Name}"></option>
+		</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Initial</td>
+		<td><input type="text" th:field="*{initial}" class="form-control"></td>
+	</tr>
+	<tr>
+		<td>Name</td>
+		<td><input type="text" th:field="*{name}" class="form-control"></td>
+	</tr>
+	<tr>
+		<td>Active</td>
+		<td><input type="checkbox" th:field="*{active}">Active</td>
+	</tr>
+	<tr>
+		<td colspan="2" align ="middle"><button type="submit" class="btn btn-outline-success">Submit</button></td>
+	</tr>
+
+</table>
+</form>
+</html>
+

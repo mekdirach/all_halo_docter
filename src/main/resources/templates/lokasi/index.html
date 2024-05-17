@@ -1,0 +1,295 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout}">
+<head>
+	<title>Lokasi</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+
+<p align="right">
+	<button onclick="addform()" class="btn btn-outline-primary">Tambah</button>
+</p>
+<!--p align="left">
+	<input type="text" >
+</p-->
+<table class="table" id="mytable">
+<thead>
+<tr align="middle">
+	<th>Nama</th>
+	<th>Level Lokasi</th>
+	<th>Wilayah</th>
+	<th>#</th>
+</tr>
+</thead>
+<tbody id="tampildata">
+</tbody>
+</table>
+<script>
+tampildata();
+function tampildata(){
+	$.ajax({
+		url:'/api/lokasi',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			//console.log(result)
+		var tampil = '';
+		for(i=0;i<result.length;i++){
+			tampil +='<table class="table table-bordered">'
+			tampil += '<tr>'
+			tampil += '<td>'+result[i].name+'</td>'
+			tampil += '<td>'+result[i].m_location_level.abbreviation+'</td>'
+			if(result[i].m_location == null){
+				tampil += '<td></td>'
+			}else{
+				tampil += '<td>'+result[i].m_location.m_location_level.abbreviation+'. '+result[i].m_location.name+'</td>'
+			}
+			//tampil += '<td>'+result[i].m_location.name+'</td>'
+			tampil += '<td>'
+			tampil += '<button class="btn btn-outline-primary"  value ="'+result[i].id+'"onclick="editform(this.value)">Edit</button>'
+			tampil += '<button class="btn btn-outline-danger" value ="'+result[i].id+'" onclick="deleteawal(this.value)">Delete</button>'
+			tampil += '</td>'
+			tampil += '</tr>'
+			tampil += '</table>'
+		//console.log(result[i].m_location.name)
+		}
+		$('#tampildata').html(tampil)
+			
+		}
+	})
+}
+$(document).ready( function (){ $('#mytable').DataTable();});
+
+function addform(){
+	var form ='<table class="table table-borderless">'
+	form += '<tr>'
+	form += '<td>Level Lokasi*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><select  class="form-control" id="levellokasi" "></select></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Wilayah</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><select class="form-control" id="wilayah"></select></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Nama*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input type="text" id="nama" class="form-control"></td>'	
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td  align="middle">'
+	form += '<button class="btn btn-outline-light" data-bs-dismiss="modal" >Cancel</button>'
+	form += '<button class="btn btn-outline-primary" onclick="save()">Save</button>'
+	form += '</td>'
+	form += '<tr>'
+	
+	$('#mymodal').modal('show')
+	$('.modal-title').html('Tambah Lokasi')
+	$('.modal-body').html(form)
+	
+			$.ajax({
+				url: '/api/levellocation/',
+				type: 'get',
+				contentType:'application/json',
+				success:function(result){
+					var editlev ='';
+					
+					for(i=0;i<result.length;i++){
+						editlev += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+					}
+					$('#levellokasi').html(editlev)
+				}
+			})
+			$.ajax({
+				url: '/api/lokasi/',
+				type: 'get',
+				contentType:'application/json',
+				success:function(result){
+					var editlev ='';
+					editlev += '<option value="">--PILIH--</option>'
+					for(i=0;i<result.length;i++){
+						
+						editlev += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+					}
+					$('#wilayah').html(editlev)
+				}
+			})
+			
+}
+function save(){
+	var save = '{'
+	save += '"created_by":1,'
+	save += '"name" :"'+$('#nama').val()+'",'
+	save += '"parent_id" :"'+$('#wilayah').val()+'",'
+	save += '"location_level_id" :"'+$('#levellokasi').val()+'"'
+	save += '}'
+	//console.log(save)
+	$.ajax({
+		url:'/api/insertlokasi',
+		type:'post',
+		data: save,
+		contentType:'application/json',
+		success:function(result){
+		//console.log(result)
+		location.replace("/lokasi/index")
+		}
+	})
+}
+function getlokasibylevlokid(id){
+	$.ajax({
+		url: '/api/getlokasibylevlokid/'+id,
+		type:'get',
+		contentType:'application/json',
+		success:function(result){
+			var wil ='';
+			for(i=0;i<result.length;i++){
+				wil += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+			}
+			$('#wilayah').html(wil)
+		}
+	})
+	}
+function editform(id){
+	$.ajax({
+		url: '/api/lokasi/'+id,
+		type: 'get', 
+		contentType:'application/json',
+		success:function(result){
+			var edit ='<table class="table table-borderless">'
+			edit += '<tr>'
+			edit += '<td>Level Lokasi*</td>'
+			edit += '</tr>'
+			edit += '<tr>'
+			edit += '<td><select class="form-control" id="levlok" value="'+result.m_location_level.name+'">'
+			edit += '</td>'
+			edit += '</tr>'
+			edit += '<tr>'
+			edit += '<td>Wilayah</td>'
+			edit += '</tr>'
+			edit += '<tr>'
+			edit += '<td><select class="form-control" id="wilayah" ></td>'
+			edit += '</tr>'
+			edit += '<tr>'
+			edit += '<td>Nama*</td '
+			edit += '</tr>'
+			edit += '<tr>'
+			edit += '<td><input class="form-control" type="text" id="name" value="'+result.name+'" ></td>'
+			edit += '</tr>'
+			edit += '<td>'
+			edit += '<button class="btn btn-outline-warning">Cancel</button>'
+			edit += '<button class="btn btn-outline-primary" onclick="saveedit(this.value)" value="'+result.id+'">Save</button>'
+			edit += '</td>'
+			edit += '</tr>'
+			console.log(result)
+			console.log(result.m_location_level.name)
+			$("#mymodal").modal('show')
+			$(".modal-tittle").html('Ubah Lokasi')
+			$(".modal-body").html(edit)
+			var kos = result.m_location_level.name;
+			console.log(kos)
+			
+			$.ajax({
+				url: '/api/levellocation/',
+				type: 'get',
+				contentType:'application/json',
+				success:function(result){
+					//console.log(result)
+					var editlev ='<option>'+kos+'</option>';
+					for(i=0;i<result.length;i++){
+						editlev += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+					}
+					$('#levlok').html(editlev)
+					$('#levlok').val()
+				}
+			})
+	$.ajax({
+		url: '/api/lokasi',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			var editwil='';
+			//console.log(result)
+			for(i=0;i<result.length;i++){
+				editwil += '<option value="'+result[i].parent_id+'">'+result[i].name+'</option>'
+			}
+			$('#wilayah').html(editwil)
+			$('#wilayah').val()
+		}
+	})
+	}
+	})
+}
+
+
+function saveedit(id){
+	$.ajax({
+		url: '/api/lokasi/'+id,
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+		var edit ='{'
+		edit += '"level_location_id":"'+$('#levlok').val()+'",'
+		edit += '"name":"'+$('#name').val()+'"'
+		edit += '}'
+		$.ajax({
+		url: '/api/editlokasi/'+id,
+		type: 'put',
+		data: edit,
+		contentType:'application/json',
+		success:function(result){
+			console.log(result)
+			location.replace("/lokasi/index")
+		}
+	})
+	
+		}
+	})
+		
+}
+function deleteawal(id){
+	$.ajax({
+		url:'/api/lokasi/'+id,
+		type:'get',
+		contentType:'application/json',
+		success:function(result){
+			var del='';
+			del += '<tr>'
+			del += '<span>Nama</span>'
+			del += '<td>Level lokasi</td>'
+			del += '<td>Wilayah</td>'
+			del +='</tr>'
+				$("#mymodal").modal('show')	
+				$(".modal-title").html("Hapus Bank")
+				$(".modal-body").html(del)	
+		}
+		
+		
+	})
+}
+function deleteedit(id){
+	var temp = window.confirm('Menghapus Data ini?')
+	if(temp){
+	$.ajax({
+		url:'/api/deletelokasi/' + id,
+		type: 'delete',
+		contentType: 'application/json',
+		success:function(result){
+			console.log(result)
+
+		location.replace('/lokasi/index')
+	}	
+	})
+}
+}
+</script>
+
+</div>
+</body>
+</html>

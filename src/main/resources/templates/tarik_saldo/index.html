@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+	layout:decorate="~{fragments/layout_pasien2}">
+<head>
+	<title>Halaman Penarikan Saldo</title>
+	<style>
+        .pincode {
+            text-security: disc;
+            -webkit-text-security: disc;
+            -moz-text-security: disc;
+			
+        }
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+  		-webkit-appearance: none;
+  		margin: 0;
+		}
+    </style>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="row row-cols-1 row-cols-md-2 g-4" >
+			<div class="col">
+			  <div class="card" style="height: 30rem;">
+				<div class="card-body" style="padding: 20px;">
+				  <h5 class="card-title">Saldo saat ini, Rp.  </h5><p id="saldocustomer"></p>
+				  <br>
+				  <div class="d-grid gap-2 d-md-block" id="nominalsaldo">
+					<!-- <input type="button" name="nominal" id="nominal" onclick="tariksaldo()"> -->
+					
+				  </div>
+				  
+				</div>
+			  </div>
+			</div>
+			<div class="col">
+			  <div class="card">
+				<div class="card-body" style="height: 30rem;">
+				  <p class="card-text" id="totalsaldo" style="padding: 20px; padding-top: 70px; font-size: larger;"></p>
+				  <div class="d-flex align-content-end flex-wrap" style="height: 200px;">
+					<div class="mt-auto p-2" id="btn">
+						<!-- <button class="btn btn-secondary" id="btncancel" onclick="cancel()">Cancel</button>
+						<button class="btn btn-primary" id="btnok" onclick="ok()">Ok</button> -->
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			
+		</div>
+		<script>
+			function cancel(){
+				$('#totalsaldo').empty()
+				var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+					btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+				$('#btn').html(btn)
+			}
+			$.ajax({
+				url: '/api/nominal',
+				type: 'get',
+				contentType: 'application/json',
+				success: function(data){
+					$.ajax({
+						url: '/api/customnom/',
+						type: 'get',
+						contentType: 'application/json',
+						success: function(wallet){
+							console.log(data)
+							console.log(wallet)
+							$.ajax({
+								url: '/api/cuswallet/',
+								type: 'get',
+								contentType: 'application/json',
+								success: function(saldo){
+									var nom = ''
+								
+									for(i=0 ; i < data.length ; i++){
+										if(saldo[0].balance >= data[i].nominal){
+											nom += '<button class="btn btn-primary" type="button" value="'+data[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo(this.value)">'+data[i].nominal+'</button>'	
+										}
+									}
+									for(i=0; i < wallet.length; i++){
+										if(saldo[0].balance >= wallet[i].nominal){
+											nom += '<button class="btn btn-primary" type="button" value="'+wallet[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo2(this.value)">'+wallet[i].nominal+'</button> '
+										}
+									}
+										nom += '<button class="btn btn-primary" type="button" id="nom" onclick="nominalsaldo()" style="margin-top: 20px;">Nominal Lain</button>'
+									$('#nominalsaldo').html(nom)
+
+									var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+										btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+								
+									$('#btn').html(btn)
+								
+										}
+									})
+						}
+					})
+					
+				}
+			})
+			$.ajax({
+				url: '/api/cuswallet/',
+				type: 'get',
+				contentType: 'application/json',
+				success: function(data){
+					var saldo = '<h5> '+data[0].balance+' </h5>'
+					$('#saldocustomer').html(saldo)
+				}
+			})
+			function tariksaldo(id){
+				console.log(id)
+				$.ajax({
+					url: '/api/nominal/'+id,
+					type: 'get',
+					contentType: 'application/json',
+					success: function(data){
+						var saldo = '<p id="sal">Anda akan melakukan penarikan saldo sebesar Rp. '+data.nominal+' </p>'
+							saldo += '<div class="d-grid gap-2"><input value="'+data.id+'" id="idnominal" hidden>'
+							saldo += '<button class="btn btn-primary" type="button" onclick="penarikan()" id="btnlanjut">Lanjut</button>'
+							saldo += '</div>' 
+							$('#totalsaldo').html(saldo)
+							$('#mymodal').modal('hide')
+							
+							var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+							$('#btn').html(btn)
+					}
+				})
+				
+			}
+			function tariksaldo1(){
+				$.ajax({
+				url: '/api/cuswallet/',
+				type: 'get',
+				contentType: 'application/json',
+				success: function(data){
+					if($('#nominal').val() > data[0].balance){
+					document.getElementById("val").innerHTML='Saldo anda tidak mencukupi untuk melakukan penarikan ini!'
+					}else if($('#nominal').val().trim()==""){
+						document.getElementById("val").innerHTML='Saldo wajib diisi!'
+				}else{
+					$.ajax({
+					url: '/api/walldefault/'+$('#nominal').val(),
+					type: 'get',
+					contentType: 'application/json',
+					success: function(walletdefault){
+						if(walletdefault === undefined){
+							var saldo = '<h5> '+data[0].balance+' </h5>'
+							var nominal = $('#nominal').val()
+							var saldo = '<p id="sal" >Anda akan melakukan penarikan saldo sebesar Rp. '+$('#nominal').val()+' </p>'
+							saldo += '<input id="idnominalcustom" value="'+ $('#nominal').val() +'" hidden>'
+							saldo += '<div class="d-grid gap-2">'
+							saldo += '<button class="btn btn-primary" type="button" onclick="penarikan1()" id="btnlanjut">Lanjut</button>'
+							saldo += '</div>'  
+							$('#totalsaldo').html(saldo)
+							$('#mymodal').modal('hide')
+							var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+							
+							$('#btn').html(btn)
+
+							
+						}else if(walletdefault.length != 0){
+							document.getElementById("val").innerHTML = 'Anda bisa memilih saldo yang tersedia!'
+						}
+					}
+				})
+					
+					
+					// console.log(nominal)
+					// var inputnom = '{'
+					// inputnom += '"nominal":'+nominal+' '
+					// inputnom += '}'
+					// $.ajax({
+					// 	url: '/api/inputnom',
+					// 	type: 'post',
+					// 	data: inputnom,
+					// 	contentType: 'application/json',
+					// 	success:function(result){
+				// 			$.ajax({
+							// 	url: '/api/nominal',
+							// 	type: 'get',
+							// 	contentType: 'application/json',
+							// 	success: function(data){
+							// 		var nom = ''
+							// 		for(i=0 ; i < data.length ; i++){
+							// 			nom += '<button class="btn btn-primary" type="button" value="'+data[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo(this.value)">'+data[i].nominal+'</button>'
+							// 		}
+							// 			nom += '<button class="btn btn-primary" type="button" id="nom" onclick="nominalsaldo()" style="margin-top: 20px;">Nominal Lain</button>'
+							// 		$('#nominalsaldo').html(nom)
+							// 		$('#btncancel').prop('disabled', true)
+							// 		$('#btnok').prop('disabled',true)
+							// 	}
+							// })
+						
+					// 	}
+					// })
+				
+				}
+			}
+			
+			})	
+			}
+			function tariksaldo2(id){
+				console.log(id)
+				$.ajax({
+					url: '/api/customnom/'+id,
+					type: 'get',
+					contentType: 'application/json',
+					success: function(data){
+						var saldo = '<p id="sal">Anda akan melakukan penarikan saldo sebesar Rp. '+data.nominal+' </p>'
+							saldo += '<div class="d-grid gap-2"><input value="'+data.id+'" id="idnominalcustom" type="text" hidden>'
+							saldo += '<button class="btn btn-primary" type="button" onclick="penarikan2()" id="btnlanjut">Lanjut</button>'
+							saldo += '</div>' 
+							$('#totalsaldo').html(saldo)
+							$('#mymodal').modal('hide')
+							var btn = '<button class="btn btn-secondary" id="btncancel" style="margin:5px;" onclick="cancel()" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok1()" disabled>Ok</button>'
+
+							$('#btn').html(btn)
+					}
+				})
+				
+			}
+			// fungsi untuk input nominal custom
+			function nominalsaldo(){
+				
+					var form = '<div class="mb-3">'
+					form += '<label for="formFileMultiple" class="form-label">Isi nominal lain</label>'
+					form += '<input type="number" id="nominal" class="form-control">'
+					form += '<p id="val" style="color:red;"></p>'
+					form += '</div>'
+					form += '<div class="d-grid gap-2 d-md-block">'
+					form += '<button class="btn btn-primary" onclick="tariksaldo1()" style="margin:5px;">Ok</button>'
+					form += '<button class="btn btn-outline-secondary" onclick="batal()">Batal</button>'
+					form += '</div>'
+					
+				$('#mymodal').modal('show')
+				$('.modal-title').html('Isi nominal lain')
+				$('.modal-body').html(form)
+				var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+					btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+				$('#btn').html(btn)
+
+				
+			}
+			//penarikan untuk default wallet
+			function penarikan(){
+				var id = $('#idnominal').val()
+				console.log(id)
+				var form = '<div class="mb-3 text-center">'
+					form += '<input name="pincode" type="number" class="pincode form-control text-center" inputmode="numeric" maxlength="6" id="pincode">'
+					form += '<input value="'+id+'" id="idsaldo" hidden>'
+					form += '<p id="val" style="color:red;"></p>'
+					form += '<div class="d-grid gap-2 col-6 mx-auto" style="padding-top: 10px;"><button class="btn btn-primary" type="button" onclick="pin()">Ok</button></div>'
+					form += '</div>'
+
+				$('#mymodal').modal('show')
+				$('.modal-title').html('Masukkan PIN')
+				$('.modal-body').html(form)
+
+			}
+			function penarikan2(){
+				var id = $('#idnominalcustom').val()
+				console.log(id)
+				var form = '<div class="mb-3 text-center">'
+					form += '<input name="pincode" type="number" class="pincode form-control text-center" inputmode="numeric" maxlength="6" id="pincode">'
+					form += '<input value="'+id+'" id="idsaldo" type="text" hidden>'
+					form += '<p id="val" style="color:red;"></p>'
+					form += '<div class="d-grid gap-2 col-6 mx-auto" style="padding-top: 10px;"><button class="btn btn-primary" type="button" onclick="pin2()">Ok</button></div>'
+					form += '</div>'
+
+				$('#mymodal').modal('show')
+				$('.modal-title').html('Masukkan PIN')
+				$('.modal-body').html(form)
+			}
+			//penarikan untuk custom nominal
+			function penarikan1(){
+				var id = $('#idnominalcustom').val()
+				console.log(id)
+				
+					var form = '<div class="mb-3 text-center">'
+					form += '<input name="pincode" type="number" class="pincode form-control text-center" inputmode="numeric" maxlength="6" id="pincode">'
+					form += '<input id="idcusnomwallet" value="'+id+'" type="text" hidden>'
+					form += '<p id="val" style="color:red;"></p>'
+					form += '<div class="d-grid gap-2 col-6 mx-auto" style="padding-top: 10px;"><button class="btn btn-primary" type="button" onclick="pin1()">Ok</button></div>'
+					form += '</div>'
+				$('#mymodal').modal('show')
+				$('.modal-title').html('Masukkan PIN')
+				$('.modal-body').html(form)
+									
+			}
+
+			function batal(){
+				$('#mymodal').modal('hide')
+			}
+			//setelah input untuk melanjutkan memasukkan pin
+			//wallet default nominal
+			function pin(){
+				var count = 0;
+				console.log($('#pincode').val())
+
+				if($('#pincode').val().trim() == ""){
+					document.getElementById("val").innerHTML="PIN harus diisi!"
+				}else{
+					$.ajax({
+					url: '/api/pin/'+ $('#pincode').val(),
+					type: 'get',
+					contentType:'application/json',
+					success:function(result){
+						console.log(result)
+						if(result === undefined){
+							if(sessionStorage.clickcount){
+								sessionStorage.clickcount = Number(sessionStorage.clickcount) + 1;
+							}else{
+								sessionStorage.clickcount = 1;
+							}
+							count = sessionStorage.clickcount;
+							console.log(count)
+							if(count == 1){
+								// alert('pin salah')
+								document.getElementById("val").innerHTML="PIN salah!"
+							}else if(count == 2){
+								//alert('pin salah '+count+' ')
+								document.getElementById("val").innerHTML="PIN anda sudah salah 2x"
+							}else if(count == 3){
+								$('#mymodal').modal('hide')
+								sessionStorage.clear()
+								$('#totalsaldo').empty()
+
+								document.getElementById("nominalsaldo").innerHTML='<p style=color:red;> Akun anda terblokir sementara</p>'
+
+								var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+								$('#btn').html(btn)
+								
+							}
+							
+						}else if(result.pin == $('#pincode').val()){
+							$('#mymodal').modal('hide')
+							$('#btnlanjut').hide()
+
+							var form = '<div class="text-center" style="padding:40px;">'
+							form +='<h3>Proses autentikasi berhasil</h3>'
+							form += '</div>'
+							$('#mymodal2').modal('show')
+							$('.modal-title2').html('Autentikasi')
+							$('.modal-body2').html(form)
+							var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;">Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok()">Ok</button>'
+
+							$('#btn').html(btn)
+						}
+
+						
+					}
+				})
+				}
+				
+			}
+			function pin2(){
+				var count = 0;
+				console.log($('#pincode').val())
+
+				if($('#pincode').val().trim() == ""){
+					document.getElementById("val").innerHTML="PIN harus diisi!"
+				}else{
+					$.ajax({
+					url: '/api/pin/'+ $('#pincode').val(),
+					type: 'get',
+					contentType:'application/json',
+					success:function(result){
+						console.log(result)
+						if(result === undefined){
+							if(sessionStorage.clickcount){
+								sessionStorage.clickcount = Number(sessionStorage.clickcount) + 1;
+							}else{
+								sessionStorage.clickcount = 1;
+							}
+							count = sessionStorage.clickcount;
+							console.log(count)
+							if(count == 1){
+								// alert('pin salah')
+								document.getElementById("val").innerHTML="PIN salah!"
+							}else if(count == 2){
+								//alert('pin salah '+count+' ')
+								document.getElementById("val").innerHTML="PIN anda sudah salah 2x"
+							}else if(count == 3){
+								$('#mymodal').modal('hide')
+								sessionStorage.clear()
+								$('#totalsaldo').empty()
+
+								document.getElementById("nominalsaldo").innerHTML='<p style=color:red;> Akun anda terblokir sementara</p>'
+
+								var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok2()" disabled>Ok</button>'
+
+								$('#btn').html(btn)
+								
+							}
+							
+						}else if(result.pin == $('#pincode').val()){
+							$('#mymodal').modal('hide')
+							$('#btnlanjut').hide()
+
+							var form = '<div class="text-center" style="padding:40px;">'
+							form +='<h3>Proses autentikasi berhasil</h3>'
+							form += '</div>'
+							$('#mymodal2').modal('show')
+							$('.modal-title2').html('Autentikasi')
+							$('.modal-body2').html(form)
+							var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;">Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok2()">Ok</button>'
+
+							$('#btn').html(btn)
+						}
+
+						
+					}
+				})
+				}
+				
+			}
+			//memasukkan pin untuk custom nominal wallet
+			function pin1(){
+				var count = 0;
+				var id = $('#idcusnomwallet').val()
+				console.log(id)
+				console.log($('#pincode').val())
+
+				if($('#pincode').val().trim() == ""){
+					document.getElementById("val").innerHTML="PIN harus diisi!"
+				}else{
+					$.ajax({
+					url: '/api/pin/'+ $('#pincode').val(),
+					type: 'get',
+					contentType:'application/json',
+					success:function(result){
+						console.log(result)
+						if(result === undefined){
+							if(sessionStorage.clickcount){
+								sessionStorage.clickcount = Number(sessionStorage.clickcount) + 1;
+							}else{
+								sessionStorage.clickcount = 1;
+							}
+							count = sessionStorage.clickcount;
+							console.log(count)
+							if(count == 1){
+								// alert('pin salah')
+								document.getElementById("val").innerHTML="PIN salah!"
+							}else if(count == 2){
+								//alert('pin salah '+count+' ')
+								document.getElementById("val").innerHTML="Pin anda sudah salah 2x"
+							}else if(count == 3){
+								$('#mymodal').modal('hide')
+								sessionStorage.clear()
+								$('#totalsaldo').empty()
+
+								document.getElementById("nominalsaldo").innerHTML='<p style=color:red;> Akun anda terblokir sementara</p>'
+
+								var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+								btn += '<button class="btn btn-primary" id="btnok" onclick="ok1()" disabled>Ok</button>'
+
+								$('#btn').html(btn)
+								
+							}
+							
+						}else if(result.pin == $('#pincode').val()){
+							var inputnom = '{'
+							inputnom += '"nominal":'+id+' '
+							inputnom += '}'
+							$.ajax({
+								url: '/api/inputnom',
+								type: 'post',
+								data: inputnom,
+								contentType: 'application/json',
+								success:function(result){
+									$('#mymodal').modal('hide')
+									$('#btnlanjut').hide()
+
+									var form = '<div class="text-center" style="padding:40px;">'
+									form +='<h3>Proses autentikasi berhasil</h3>'
+									form += '<input value="'+$('#idcusnomwallet').val()+'" type="text" id="idcustom">'
+									form += '</div>'
+									$('#mymodal2').modal('show')
+									$('.modal-title2').html('Autentikasi')
+									$('.modal-body2').html(form)
+									var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;">Cancel</button>'
+										btn += '<button class="btn btn-primary" id="btnok" onclick="ok1()">Ok</button>'
+									
+									$('#btn').html(btn)
+								}
+							})
+
+							
+						}
+
+						
+					}
+				})
+				}
+				
+			}
+			//fungsi random nomer
+			function randomIntFromInterval(min, max) { // min and max included 
+					var random = ""
+					for(i = 0; i < 6; i++){
+						random +=  Math.floor(Math.random() * (max - min + 1) + min)
+					}
+  					return random
+					console.log(random)
+			}
+			//fungsi untuk penyimpanan penarikan saldo customer (wallet default nominal)
+			function ok(){
+				var idnominal = $('#idsaldo').val()
+				
+				const rndInt = randomIntFromInterval(1, 9)
+				console.log(rndInt)
+				console.log(idnominal)
+				
+				$.ajax({
+					url:'/api/nominal/'+idnominal,
+					type: 'get',
+					contentType: 'application/json',
+					success: function(nom){
+						console.log(nom)
+						var trans = '{'
+						trans += '"wallet_default_nominal_id": '+idnominal+', '
+						trans += '"is_delete":false, '
+						trans += ' "account_number":"9002", '
+						trans += ' "account_name":"Amalia", '
+						trans += ' "bank_name": "BRI" , '
+						trans += '	"otp": '+rndInt+','
+						trans += ' "amount": '+nom.nominal+''
+						trans += '}'
+						console.log(trans)
+						$.ajax({
+							url: '/api/cuswallet/',
+							type: 'get',
+							contentType: 'application/json',
+							success: function(data){
+								var saldo = '{'
+								 	saldo += '"balance":'+(data[0].balance-nom.nominal)+','
+									saldo += '"customer_id": '+data[0].customer_id+','
+									saldo += ' "created_by": '+data[0].created_by+', '
+									saldo += ' "created_on": " '+data[0].created_on+' ", '
+									saldo += ' "pin": '+data[0].pin+' '
+									saldo +='}'
+									console.log(saldo)
+								$.ajax({
+									url: '/api/editWalletCus/'+data[0].id,
+									type: 'put',
+									data : saldo,
+									contentType: 'application/json',
+									success: function(datawallet){
+										var saldo = '<h5> '+datawallet.balance+' </h5>'
+										$('#saldocustomer').html(saldo)
+									}
+								})
+								
+							}
+						})
+						$.ajax({
+							url: '/api/inputsaldo',
+							type: 'post',
+							data: trans,
+							contentType: 'application/json',
+							success:function(result){
+								var form = '<div class="text-center" style="padding:40px;">'
+									form +='<h3>Proses penarikan saldo berhasil</h3>'
+									form += '<h4><Strong>OTP anda : '+rndInt+'</Strong></h4>'
+									form += '<p>*OTP akan kadaluarsa dalam 1 jam</p>'
+									form += '</div>'
+									$('#mymodal2').modal('show')
+									$('.modal-title2').html('Tarik Saldo')
+									$('.modal-body2').html(form)
+
+									$('#totalsaldo').empty()
+									var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+										btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+									$('#btn').html(btn)
+
+									$.ajax({
+									url: '/api/nominal',
+									type: 'get',
+									contentType: 'application/json',
+									success: function(data){
+										$.ajax({
+											url: '/api/customnom/',
+											type: 'get',
+											contentType: 'application/json',
+											success: function(wallet){
+												console.log(data)
+												console.log(wallet)
+												$.ajax({
+													url: '/api/cuswallet/',
+													type: 'get',
+													contentType: 'application/json',
+													success: function(saldo){
+														var nom = ''
+
+														for(i=0 ; i < data.length ; i++){
+															if(saldo[0].balance >= data[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+data[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo(this.value)">'+data[i].nominal+'</button>'	
+															}
+														}
+														for(i=0; i< wallet.length; i++){
+															if(saldo[0].balance >= wallet[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+wallet[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo2(this.value)">'+wallet[i].nominal+'</button> '
+															}
+
+														}
+															nom += '<button class="btn btn-primary" type="button" id="nom" onclick="nominalsaldo()" style="margin-top: 20px;">Nominal Lain</button>'
+														$('#nominalsaldo').html(nom)
+													
+														var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+															btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+													
+														$('#btn').html(btn)
+															}
+														})
+											}
+										})
+
+									}
+								})
+								
+							}
+						})
+					}
+				})
+				
+			}
+			//fungsi untuk penyimpanan penarikan saldo customer (custom nominal)
+			function ok2(){
+				var idnominal = $('#idsaldo').val()
+				
+				const rndInt = randomIntFromInterval(1, 9)
+				console.log(rndInt)
+				console.log(idnominal)
+				
+				$.ajax({
+					url:'/api/customnom/'+idnominal,
+					type: 'get',
+					contentType: 'application/json',
+					success: function(nom){
+						console.log(nom)
+						var trans = '{'
+						trans += '"is_delete":false, '
+						trans += ' "account_number":"9002", '
+						trans += ' "account_name":"Amalia", '
+						trans += ' "bank_name": "BRI" , '
+						trans += '	"otp": '+rndInt+','
+						trans += ' "amount": '+nom.nominal+''
+						trans += '}'
+						console.log(trans)
+						$.ajax({
+							url: '/api/cuswallet/',
+							type: 'get',
+							contentType: 'application/json',
+							success: function(data){
+								var saldo = '{'
+								 	saldo += '"balance":'+(data[0].balance-nom.nominal)+','
+									saldo += '"customer_id": '+data[0].customer_id+','
+									saldo += ' "created_by": '+data[0].created_by+', '
+									saldo += ' "created_on": " '+data[0].created_on+' ", '
+									saldo += ' "pin": '+data[0].pin+' '
+									saldo +='}'
+									console.log(saldo)
+								$.ajax({
+									url: '/api/editWalletCus/'+data[0].id,
+									type: 'put',
+									data : saldo,
+									contentType: 'application/json',
+									success: function(datawallet){
+										var saldo = '<h5> '+datawallet.balance+' </h5>'
+										$('#saldocustomer').html(saldo)
+									}
+								})
+								
+							}
+						})
+						$.ajax({
+							url: '/api/inputsaldo',
+							type: 'post',
+							data: trans,
+							contentType: 'application/json',
+							success:function(result){
+								var form = '<div class="text-center" style="padding:40px;">'
+									form +='<h3>Proses penarikan saldo berhasil</h3>'
+									form += '<h4><Strong>OTP anda : '+rndInt+'</Strong></h4>'
+									form += '<p>*OTP akan kadaluarsa dalam 1 jam</p>'
+									form += '</div>'
+									$('#mymodal2').modal('show')
+									$('.modal-title2').html('Tarik Saldo')
+									$('.modal-body2').html(form)
+
+									$('#totalsaldo').empty()
+									var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+										btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+									$('#btn').html(btn)
+
+									$.ajax({
+									url: '/api/nominal',
+									type: 'get',
+									contentType: 'application/json',
+									success: function(data){
+										$.ajax({
+											url: '/api/customnom/',
+											type: 'get',
+											contentType: 'application/json',
+											success: function(wallet){
+												console.log(data)
+												console.log(wallet)
+												$.ajax({
+													url: '/api/cuswallet/',
+													type: 'get',
+													contentType: 'application/json',
+													success: function(saldo){
+														var nom = ''
+
+														for(i=0 ; i < data.length ; i++){
+															if(saldo[0].balance >= data[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+data[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo(this.value)">'+data[i].nominal+'</button>'	
+															}
+														}
+														for(i=0; i< wallet.length; i++){
+															if(saldo[0].balance >= wallet[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+wallet[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo2(this.value)">'+wallet[i].nominal+'</button> '
+															}
+
+														}
+															nom += '<button class="btn btn-primary" type="button" id="nom" onclick="nominalsaldo()" style="margin-top: 20px;">Nominal Lain</button>'
+														$('#nominalsaldo').html(nom)
+													
+														var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+															btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+													
+														$('#btn').html(btn)
+															}
+														})
+											}
+										})
+
+									}
+								})
+								
+							}
+						})
+					}
+				})
+				
+			}
+			//fungsi untuk penyimpanan penarikan saldo customer (custom nominal)
+			function ok1(){
+				var idnominal = $('#idcustom').val()
+				const rndInt = randomIntFromInterval(1, 9)
+				console.log(rndInt)
+				console.log(idnominal)
+				
+						var trans = '{'
+						trans += '"is_delete":false, '
+						trans += ' "account_number":"9002", '
+						trans += ' "account_name":"Amalia", '
+						trans += ' "bank_name": "BRI" , '
+						trans += '	"otp": '+rndInt+','
+						trans += ' "amount": '+idnominal+''
+						trans += '}'
+						console.log(trans)
+						$.ajax({
+							url: '/api/cuswallet/',
+							type: 'get',
+							contentType: 'application/json',
+							success: function(data){
+								var saldo = '{'
+								 	saldo += '"balance":'+(data[0].balance-idnominal)+','
+									saldo += '"customer_id": '+data[0].customer_id+','
+									saldo += ' "created_by": '+data[0].created_by+', '
+									saldo += ' "created_on": " '+data[0].created_on+' ", '
+									saldo += ' "pin": '+data[0].pin+' '
+									saldo +='}'
+									console.log(saldo)
+								$.ajax({
+									url: '/api/editWalletCus/'+data[0].id,
+									type: 'put',
+									data : saldo,
+									contentType: 'application/json',
+									success: function(datawallet){
+										var saldo = '<h5> '+datawallet.balance+' </h5>'
+										$('#saldocustomer').html(saldo)
+									}
+								})
+								
+							}
+						})
+						
+						$.ajax({
+							url: '/api/inputsaldo',
+							type: 'post',
+							data: trans,
+							contentType: 'application/json',
+							success:function(result){
+								var form = '<div class="text-center" style="padding:40px;">'
+									form +='<h3>Proses penarikan saldo berhasil</h3>'
+									form += '<h4><Strong>OTP anda : '+rndInt+'</Strong></h4>'
+									form += '<p>*OTP akan kadaluarsa dalam 1 jam</p>'
+									form += '</div>'
+									$('#mymodal2').modal('show')
+									$('.modal-title2').html('Tarik Saldo')
+									$('.modal-body2').html(form)
+
+									$('#totalsaldo').empty()
+									var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+										btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+
+									$('#btn').html(btn)
+
+									$.ajax({
+									url: '/api/nominal',
+									type: 'get',
+									contentType: 'application/json',
+									success: function(data){
+										$.ajax({
+											url: '/api/customnom/',
+											type: 'get',
+											contentType: 'application/json',
+											success: function(wallet){
+												console.log(data)
+												console.log(wallet)
+												$.ajax({
+													url: '/api/cuswallet/',
+													type: 'get',
+													contentType: 'application/json',
+													success: function(saldo){
+														var nom = ''
+
+														for(i=0 ; i < data.length ; i++){
+															if(saldo[0].balance >= data[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+data[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo(this.value)">'+data[i].nominal+'</button>'	
+															}
+														}
+														for(i=0; i< wallet.length; i++){
+															if(saldo[0].balance >= wallet[i].nominal){
+																nom += '<button class="btn btn-primary" type="button" value="'+wallet[i].id+'" id="nom" style="margin-top: 20px; margin-right: 5px;" onclick="tariksaldo2(this.value)">'+wallet[i].nominal+'</button> '
+															}
+
+														}
+															nom += '<button class="btn btn-primary" type="button" id="nom" onclick="nominalsaldo()" style="margin-top: 20px;">Nominal Lain</button>'
+														$('#nominalsaldo').html(nom)
+													
+														var btn = '<button class="btn btn-secondary" id="btncancel" onclick="cancel()" style="margin:5px;" disabled>Cancel</button>'
+															btn += '<button class="btn btn-primary" id="btnok" onclick="ok()" disabled>Ok</button>'
+													
+														$('#btn').html(btn)
+															}
+														})
+											}
+										})
+
+									}
+								})
+								
+						
+								
+							}
+						})
+				
+			}
+			
+		</script>
+	</div>
+	
+	</div>
+	
+</body>
+</html>

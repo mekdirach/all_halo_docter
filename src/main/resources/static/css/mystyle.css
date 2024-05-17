@@ -1,0 +1,35 @@
+.txtnama{
+    background-color: lightblue;
+    padding: 5px; 
+    /* jarak huruf dengan textbox */
+    margin: 5px;
+    border: 1px solid red;
+    border-radius: 10px;
+    /* solid = pattern */
+    /* border-radius = tepinya textbox */
+
+}
+.tombol{
+    background-color: #40916c;
+    padding: 12px;
+    margin: 5px;
+    border: 0px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+.tombol:hover{
+    background-color: #98C9A3;
+    color: yellow;
+}
+.formtable{
+    border: 1px  solid lightgray;
+    background-color: lightyellow;
+}
+td{
+    border: 1px solid lightgray;
+    padding: 5px;
+    font-family: Helvetica;
+}
+/* hover (ketika panah ke tombol warna tombol akan berubah) */
+/* penulisan di css kalau . itu class kalau # itu id */

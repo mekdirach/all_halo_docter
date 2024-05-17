@@ -1,0 +1,422 @@
+<html lang="en" xmlns : th = "http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{fragments/layout2}">
+<head>
+	<title>PASIEN</title>
+</head>
+<body>
+ 
+<div layout:fragment="content">
+
+<table class="table table-borderless ">
+<tr>
+<td><input type="text" class="form-control"placeholder="Cari alamat atau nama penerima" id="searchdata" onchange="search()"></td>
+<td style="width:1px;">Urutan</td>
+<td><select class="form-control" placeholder="Label Alamat"></select></td>
+<tr>
+<td><button class="btn btn-outline-success">hapus</button></td>
+<td colspan="2" align="right"><button onclick="addform()" class="btn btn-outline-primary">Tambah</button><tr>
+</tr>
+</table>
+<table class="table" id="mytable">
+<thead>
+</thead>
+<tbody id="dataproduct"></tbody>
+</table>
+<script>
+
+//untuk data join tambel customer,customer_relation dan customer_member
+reloaddata();
+function reloaddata(){
+	$.ajax({
+		url: '/api/tampil',
+		type: 'get',
+		contentType: 'application /json',
+		success:function(result){
+			//console.log(result)
+			//console.log(result.length)
+			var data = '';
+			for(i=0; i<result.length;i++){
+				//console.log(result[i])
+				data += '<table class="table table-borderless">'
+				data += '<tr>'
+				data += '<td>'
+				data += '<input class="form-check-input" type="checkbox">'
+				data += '</td>'
+				data += '<td>'
+				data += '<h5>'+result[i].fullname+'</h5>'
+				data += '<h6>'+result[i].name+', ' +result[i].umur+' tahun</h6>'
+				data += '</td>'
+				data +='<td align="right">'
+				data += '<button class="btn btn-outline-primary" onclick="editform(this.value)">Edit</button>'
+				data += '<button class="btn btn-outline-danger" onclick="Deleteform(this.value)">Del</button>'
+				data += '</td>'
+				data += '</tr>'
+				data += '<tr>'
+				data += '</tr>'
+				data += '</table>'
+			}
+			$('#dataproduct').html(data)
+		}
+	})
+}
+function addform(){
+	var form='<table class="table table-borderless">'
+	form += '<tr>'
+	form += '<td>Nama Lengkap*</td>'
+	form += '</tr>'
+	form += '<td colspan="2"><input type="text" class="form-control" id="namaleng" required placeholder="Contoh:Bagus Aryo Nugroho"><p id="val" style="color:red;"></p></td>'
+	form += '</tr>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Tanggal Lahir*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td colspan="2"><input type="date" class="form-control" id="date" required><p id="val1" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<td>Jenis Kelamin*</td>'
+	form +='<td>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="gender" id="gender" value="L" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1"> Pria</label></div>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="gender" id="gender" value="W" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1"> Wanita</label></div>'
+	form += '</td>'
+	form += '<tr>'
+	form += '<td>Golongan Darah/Rhesus</td>'
+	form +='</tr>'
+	form +='<tr>'
+	form += '<td><select id="goldar" select class="form-control"></td>'
+	form +='<td>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="resus" id="resus" value="RH+" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1"> RH+</label></div>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="resus" id="resus" value="RH-" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1"> RH-</label></div>'
+	form += '</td>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Tinggi Badan*</td><td>Berat Badan*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input type="text" id="height" required>cm<p id="val2" style="color:red;"></p></td><td><input type="text" id="weight" required >kg<p id="val2" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Relasi*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td colspan="2"><select id="relasi" class="form-control"><p id="val3" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<td colspan="2" align="middle">'
+	form += '<button class="btn btn-outline-dark" data-bs-dismiss="modal">Cancel</button>'
+	form += '<button class="btn btn-outline-primary" onclick="save()">Simpan</button>'
+	form += '</td>'
+	form += '</tr>'
+	form +='</table>'
+			$("#mymodal").modal('show')
+			$(".modal-title").html('Tambah Pasien')
+			$(".modal-body").html(form)
+			
+			$.ajax({
+				url:'/api/getgoldar',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(result){
+					var dar=" "
+					dar += '<option value="">--Pilih--</option>' 
+					for(i=0;i<result.length;i++){
+						dar += '<option value="'+result[i].id+'">'+result[i].code+'</option>'
+					}
+					$('#goldar').html(dar)
+				}
+				
+			})
+			
+			$.ajax({
+				url: '/api/getrelation',
+				type: 'get',
+				contentType: 'application/json',
+				success:function(result){
+					var rel = ""
+					rel += '<option value="">--Pilih--</option>'
+					for(i=0;i<result.length;i++){
+						rel += '<option value="'+result[i].id+'">'+result[i].name+'</option>'
+					}
+					$('#relasi').html(rel)
+				}
+			})
+}   
+function check(){
+	var label =$('#label').val().trim().toLowerCase()
+	var nama_p =$('#nama_penerima').val().trim().toLowerCase()
+	var telp_p = $('#telp_penerima').val()
+	var wil = $('#wilayah').val()
+	var kodpos = $('#kodepos').val()
+	var alamat= $('#alamat').val()
+	if(label==""||nama_p==""||telp_p==""||wil==""||kodpos==""||alamat==""){
+		document.getElementById("val").innerHTML="Fail"
+		document.getElementById("val1").innerHTML="Fail"
+		document.getElementById("val2").innerHTML="Fail"
+		document.getElementById("val3").innerHTML="Fail"
+		document.getElementById("val4").innerHTML="Fail"
+		document.getElementById("val5").innerHTML="Fail"
+	}
+	else{
+		$.ajax({
+			url:'/api/bankcheck/'+label,
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+		document.getElementById("val").innerHTML="Fail"
+		document.getElementById("val1").innerHTML="Fail"
+		document.getElementById("val2").innerHTML="Fail"
+		document.getElementById("val3").innerHTML="Fail"
+		document.getElementById("val4").innerHTML="Fail"
+		document.getElementById("val5").innerHTML="Fail"
+				}
+				else{
+					save();
+				}
+			}
+		})
+	}
+}
+
+function save(){
+	var nama = '{'
+	nama += '"fullname":"'+$('#namaleng').val()+'"'
+	nama +='}' 
+	//console.log(nama) 
+	var namapasien = $('#namaleng').val();
+	$.ajax({
+		url: '/api/savebio',
+		type: 'post',
+		data: nama,
+		contentType: 'application/json',
+		success:function(bio){
+			$.ajax({
+			url: '/api/getnama/'+namapasien,
+			type: 'get',
+			contentType: 'application/json',
+			success:function(resultbio){
+				//console.log(resultbio)
+				for(i = 0; i < resultbio.length; i++){
+					var sav = '{'
+					sav += '"biodata_id":'+resultbio[i].id+','
+					sav += '"dob":"'+$('#date').val()+'",'
+					sav += '"gender":"'+$('#gender').val()+'",'
+					sav += '"rhesus_type":"'+$('#resus').val()+'",'
+					sav += '"blood_group_id":"'+$('#goldar').val()+'",'
+					sav += '"height":"'+$('#height').val()+'",'
+					sav += '"weight":"'+$('#weight').val()+'"'    
+					sav += '}'
+					}
+					//console.log(sav);
+					var idbio = resultbio[0].id;
+					$.ajax({
+						url: '/api/simpanpasien',
+						type: 'post',
+						data: sav,
+						contentType: 'application/json',
+						success:function(pasien){
+							
+							$.ajax({
+								url: '/api/pasienbio/'+idbio,
+								type: 'get',
+								contentType:'application/json',
+								success:function(cm){
+									for(i=0;i<cm.length;i++){
+								var id = cm[i].id;
+							}
+							console.log(id)
+							console.log(cm)
+								}
+							})
+							
+						//id = result[0].id;
+						
+						$('#mymodal').modal('hide')
+						reloaddata();
+					
+						}
+					})
+				}
+			
+		})	
+		}
+	})
+
+}
+function editform(id){
+	$.ajax({
+		url: '/api/alamat/'+id,
+		type: 'get',
+		contentType: 'application/json',
+		success: function(result){
+			console.log(result)
+		var form='<table class="table table-borderless">'
+		form += '<tr>'
+	form += '<td>Nama Lengkap*</td>'
+	form += '</tr>'
+	form += '<td colspan="2"><input type="text" class="form-control" id="namaleng" required placeholder="Contoh:Bagus Aryo Nugroho"><p id="val" style="color:red;"></p></td>'
+	form += '</tr>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Tanggal Lahir*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td colspan="2"><input type="date" class="form-control" id="date" required><p id="val1" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<td>Jenis Kelamin*</td>'
+	form +='<td>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="gender" id="gender" value="L" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1">Pria</label></div>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="gender" id="gender" value="W" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1">Wanita</label></div>'
+	form += '</td>'
+	form += '<tr>'
+	form += '<td>Golongan Darah/Rhesus</td>'
+	form +='</tr>'
+	form +='<tr>'
+	form += '<td><select class="form-control"><option value="" selected>--PILIH--</option></td>'
+	form +='<td>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="resus" id="resus" value="RH+" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1">RH+</label></div>'
+	form += '<div class="form-check-inline">'
+ 	form += '<input class="form-check-input" type="radio" name="resus" id="resus" value="RH-" checked>'
+  	form += '<label class="form-check-label" for="exampleRadios1">RH-</label></div>'
+	form += '</td>'
+	form +='</tr>'
+	form += '<tr>'
+	form += '<td>Tinggi Badan*</td><td>Berat Badan*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td><input  type="text" id="height" required>cm<p id="val2" style="color:red;"></p></td><td><input type="text" id="weight" required>kg<p id="val2" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td>Relasi*</td>'
+	form += '</tr>'
+	form += '<tr>'
+	form += '<td colspan="2"><select id="relasi" class="form-control"><p id="val3" style="color:red;"></p></td>'
+	form += '</tr>'
+	form += '<td colspan="2" align="middle">'
+	form += '<button class="btn btn-outline-dark" data-bs-dismiss="modal">Cancel</button>'
+	form += '<button class="btn btn-outline-primary" onclick="saveedit(this.value)">Simpan</button>'
+	form += '</td>'
+	form += '</tr>'
+	form +='</table>'
+				$("#mymodal").modal('show')
+				$(".modal-title").html('Edit Data Pasien')
+				$(".modal-body").html(form)
+		}
+	})
+}
+
+function checkedit(){
+	var id = $('#id').val()
+	var nam =$('#name').val().trim().toLowerCase()
+	var va_code=$('#kodeva').val()
+	if(nam==""||va_code==""){
+		document.getElementById("val").innerHTML="Fail"
+		document.getElementById("val1").innerHTML="Fail"
+	}
+	else{
+		$.ajax({
+			url:'/api/bankcheck/'+nam,
+			type:'get',
+			contentType:'application/json',
+			success:function(result){
+				if(result.length!=0){
+		document.getElementById("val").innerHTML="Already"
+		document.getElementById("val1").innerHTML="Already"
+				}
+				else{
+					saveedit();
+				}
+			}
+		})
+	}
+}
+
+function saveedit(id){
+var savedit = '{'
+savedit += '"dob":"'+$('#date').val()+'",'
+savedit += '"gender":"'+$('#gender').val()+'",'
+savedit += '"rhesus_type":"'+$('#resus').val()+'",'
+savedit += '"height":"'+$('#height').val()+'",'
+savedit += '"weight":"'+$('#weight').val()+'"'
+savedit += '}'
+console.log(savedit)
+$.ajax({
+	url:'/api/editBank/'+id,
+	type: 'put',
+	data: vedit,
+	contentType: 'application/json',
+	success : function(result){
+		console.log(result)
+		location.replace('/bank/index')	
+		}
+})
+}
+function Deleteform(id){ 
+	$.ajax({
+		url: '/api/bank/'+id,
+		type: 'get',
+		contentType:'application/json',
+		success:function(result){
+			var del = ''
+			del += '<table class="table table-borderless">'
+			del +='<tr>'
+			del +='<td> Anda yakin ingin mengapus alamat</td>'
+			del +='</tr>'
+			del += '<tr>'
+			del +='<td align="middle" id="label"><h7>"'+result.label+'"</h7></td>'
+			del += '</tr>'
+			del += '<tr>'
+			del += '<td>Anda tidak dapat mengembalikan alamat yang sudah dihapus</td>'
+			del += '</tr>'
+			del += '<tr>'
+			del += '<td align="middle">'
+			del += '<button class="btn btn-outline-success" onclick="javascript:location.replace(\'/alamat/index\')">Cancel</button>'
+			del += '<button class="btn btn-outline-danger" onclick="deleteedit(this.value)">Delete</button>'	
+			del += '</td>'
+			del += '</tr>'	
+			del += '<table>'
+				$("#mymodal").modal('show')	
+				$(".modal-title").html("Hapus Bank")
+				$(".modal-body").html(del)	
+		}
+	})	
+} 
+function deleteedit(id){
+	var del ='{'
+	del += '"label":"'+$('#label').val()+'",'
+	del += '"recipient":"'+$('#nama_penerima').val()+'",'
+	del += '"recipient_phone_number":"'+$('#telp_penerima').val()+'",'
+	del += '"postal_code":"'+$('#kodepos').val()+'",'
+	del += '"address":"'+$('#alamat').val()+'",'
+	del += '"is_delete":true'
+	del +='}'
+	$.ajax({
+		url:'/api/tambahalamat/'+id,
+		type: 'put',
+		data: del,
+		contentType: 'application/json',
+		success:function(result){
+			$('#mymodal').modal('hide');
+			reloaddata();
+		}
+	})
+}
+
+
+</script>
+</div>
+</body>
+</html>

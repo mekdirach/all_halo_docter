@@ -1,0 +1,151 @@
+<!Doctype html>
+<html >
+<head>
+	<title> Alamat </title>	
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<style>
+		*
+		{
+			margin: 0;
+			padding: 0;
+		}
+		.card-title{
+			color: #457b9d;
+		}
+		.card-header{
+			color: #023047;
+		}
+	</style>
+</head>
+	<body>
+		<div class="modal fade" id="mymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content" >
+				<div class="modal-header" style="background-color: #bde0fe;">
+				  <h5 class="modal-title" id="exampleModalLabel" >Modal title</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				  ...
+				</div>
+			   
+			  </div>
+			</div>
+		  </div>
+		  
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: lightblue; padding: 10px; padding-left: 20px;">
+			  <li class="breadcrumb-item"><a href="/">Home</a> </li>
+			  <li class="breadcrumb-item active" aria-current="page" id="next">Profile</li>
+			</ol>
+		 
+		<div class="d-flex vh-100 justify-content-between" style="padding: 10px;">
+			
+			<div class="d-flex flex-column col-4"> 
+				
+				<div class="card" style="padding: 20px;"> 
+					
+					<div class="d-flex justify-content-end" style="padding-right: 120px;">
+						<button class="btn" style="border: none; cursor:pointer;" onclick="modalphoto(this.value)" th:each="item:${doctor}" th:value="${item.Id}"><i class="fa fa-pencil"></i></button>
+					</div>
+					<img th:each="item:${doctor}" th:src="@{${'/images/' + item.m_biodata.image_path} }" class="img-fluid rounded mx-auto d-block rounded-circle" alt="Responsive image" width="120px" >
+					
+						<div class="text-center">
+							<h5 th:each="item:${doctor}" th:text="${item.m_biodata.Fullname}"></h5>
+							<h5 th:each="spc:${spesalis}" th:text="${spc.m_specialization.Name}"></h5>
+						</div>
+						
+						<p class="text-center"> 
+						<i class="fa fa-star" aria-hidden="true" style="color: orange;" ></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i><i class="fa fa-star" aria-hidden="true" style="color: orange;"></i></p>
+						<table border="0" class="table">
+							<tr>
+								<td>Janji </td>
+								<td><span th:text="${countjanji}" style="text-align: left"></span></td>
+							</tr>
+							<tr>
+								<td>Obrolan / Konsultasi</td>
+								<td></td>
+								
+							</tr>
+						</table>
+					
+				</div>
+				<div class="card text-dark" style="width: auto;">
+					<div class="card-header" style="background-color: lightblue;"><h4>Tentang saya</h4></div>
+					<div class="card-body">
+					  <h6 class="card-title">Tindakan Medis</h6>
+						<ul style="list-style-type: '- ';" >
+							<li  th:each="treat:${treatment}" th:text="${treat.Name}"></li>
+							
+						</ul>
+					  <h6 class="card-title">Riwayat Praktek</h6>
+						<table class="table-borderless" th:each="item:${praktek}">
+							<tr>
+								<td th:text="${item.m_medical_facility.Name}" style="padding-left: 25px; padding-right: 5px;"></td>
+								<td th:text="${item.m_medical_facility.m_location.Name}"></td>
+							</tr>
+						</table>
+					  <h6 class="card-title">Pendidikan</h6>
+
+					  <table class="table-borderless" th:each="edu:${education}">
+						<tr>
+							<td th:text="${edu.Institution_name}" style="padding-left: 20px; font-size: large;"> </td>
+						</tr>
+						<tr>
+							<td th:text="${edu.Major}" style="padding-left: 25px; font-size: small;"></td>
+							<td th:text="${edu.Start_year}" style="font-size: small; padding-left: 100px;"></td>
+						</tr>
+						<tr>
+							
+						</tr>
+					  </table>
+
+						
+					 </div>
+				  </div>
+			</div>
+			<div id="content" class="card col-8" >
+				<div>
+					<div class="card-header">
+					  <ul class="nav nav-tabs card-header-tabs">
+						<li class="nav-item">
+						  <a class="nav-link" aria-current="true"><label onclick="alamat(this.value)">Alamat</a>
+						</li>
+					</div>
+					<div class="card-body" id="bodycontent">
+					 
+					</div>
+			</div>
+		</div>
+	</nav>
+	<script>
+
+function alamat(){
+	$.ajax({
+		url: '/alamat/alamat',
+		type: 'get',
+		contentType: 'application/json',
+		success:function(result){
+			$('#bodycontent').html(result)
+		}
+	})
+}
+		function modalphoto(id){
+			$.ajax({
+				url: '/doktor/showimage/'+id,
+				type: 'get',
+				contentType: 'html',
+				success:function(result){
+					$('#mymodal').modal('show')
+					$('.modal-title').html('Edit Photo')
+					$('.modal-body').html(result)
+				}
+			})
+			
+		}
+	</script>
+	</body>
+</html>
